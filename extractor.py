@@ -1,28 +1,8 @@
-import requests
 import os
 import pandas as pd
 from pdfminer.high_level import extract_text
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from io import BytesIO
 import re
-
-def download_pdf(pdf_url, pasta_destino):
-    try:
-        response = requests.get(pdf_url)
-        response.raise_for_status()
-
-        pdf_nome = pdf_url.split('/')[-1]
-        pdf_path = os.path.join(pasta_destino, pdf_nome)
-
-        with open(pdf_path, 'wb') as f:
-            f.write(response.content)
-        print(f"PDF {pdf_nome} baixado com sucesso!")
-        
-        return pdf_path
-
-    except Exception as e:
-        print(f"Erro ao baixar o PDF de {pdf_url}: {e}")
-        return None
 
 def extrair_texto_pdf(pdf_path):
     try:
@@ -53,16 +33,14 @@ def processar_downloads_e_extração(csv_path, pasta_destino):
     for _, row in df.iterrows():
         if isinstance(row['PDFs'], str):
             try:
-                pdf_links = eval(row['PDFs'])
+                pdf_paths = eval(row['PDFs'])
             except:
-                pdf_links = []
+                pdf_paths = []
 
             textos_extraidos = []
 
-            for pdf_link in pdf_links:
-                pdf_path = download_pdf(pdf_link, pasta_destino)
-                
-                if pdf_path:
+            for pdf_path in pdf_paths:
+                if pdf_path and os.path.exists(pdf_path):
                     texto_pdf = extrair_texto_pdf(pdf_path)
                     texto_limpo = limpar_texto(texto_pdf)
                     textos_extraidos.append(texto_limpo)
