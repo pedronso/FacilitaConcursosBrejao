@@ -1,0 +1,11 @@
+langchain
+streamlit
+huggingface_hub
+groq
+pdfminer.six
+requests
+beautifulsoup4
+pandas
+faiss-cpu
+sentence-transformers
+python-dotenv
