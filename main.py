@@ -9,6 +9,9 @@ from pipelines.rag import RAGPipeline
 from reports.metrics import avaliar_sistema
 import streamlit.cli as stcli
 import sys
+import subprocess
+
+
 
 BASE_URL = "https://www.pciconcursos.com.br/concursos/nacional/"
 CSV_EDITAIS = "data/processed/editais_concursos.csv"
@@ -54,19 +57,52 @@ def etapa_4_testar_rag():
         print(f"\n🔹 Pergunta: {query}")
         print(f"💬 Resposta: {resposta}")
 
+def run_script(script_path):
+    """Executa um script Python e exibe a saída em tempo real."""
+    try:
+        process = subprocess.Popen(["python", script_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        for line in iter(process.stdout.readline, ''):
+            print(line, end="")  # Exibe a saída do script em tempo real
+        process.stdout.close()
+        return_code = process.wait()
+        if return_code != 0:
+            print(f"⚠️ Erro ao executar {script_path}. Código de retorno: {return_code}")
+    except Exception as e:
+        print(f"❌ Erro ao rodar {script_path}: {e}")
+
 def etapa_5_experimentos():
     """Executa os experimentos de embeddings, chunking e LLMs."""
-    print("\n📊 [5/6] Executando experimentos...")
-    os.system("python experiments/embeddings_experiment.py")
-    os.system("python experiments/chunking_experiment.py")
-    os.system("python experiments/llm_experiment.py")
-    print("✅ Experimentos concluídos!")
+    print("\n📊 [5/6] Executando experimentos...\n")
+
+    scripts_experimentos = [
+        "experiments/embeddings_experiment.py",
+        "experiments/chunking_experiment.py",
+        "experiments/llm_experiment.py"
+    ]
+
+    for script in scripts_experimentos:
+        if os.path.exists(script):
+            print(f"▶️ Executando: {script} ...")
+            run_script(script)
+        else:
+            print(f"⚠️ Arquivo não encontrado: {script}")
+
+    print("\n✅ Experimentos concluídos!")
 
 def etapa_6_metricas():
-    """Avalia desempenho do sistema."""
-    print("\n📈 [6/6] Avaliando desempenho do chatbot...")
-    avaliar_sistema()
-    print("✅ Avaliação concluída! Veja os resultados em 'reports/metricas.csv'")
+    """Avalia desempenho do sistema e salva métricas."""
+    print("\n📈 [6/6] Avaliando desempenho do chatbot...\n")
+    
+    start_time = time.time()
+    
+    try:
+        avaliar_sistema()
+        print("✅ Avaliação concluída! Veja os resultados em 'reports/metricas.csv'")
+    except Exception as e:
+        print(f"❌ Erro ao avaliar métricas: {e}")
+    
+    total_time = time.time() - start_time
+    print(f"\n⏳ Tempo total da avaliação: {total_time:.2f} segundos.")
 
 def iniciar_interface():
     """Executa a interface Streamlit."""
@@ -76,8 +112,8 @@ def iniciar_interface():
 if __name__ == "__main__":
     start_time = time.time()
 
-    etapa_1_scraper()
-    etapa_2_extracao()
+    #etapa_1_scraper()
+    #etapa_2_extracao()
     etapa_3_embeddings()
     etapa_4_testar_rag()
     etapa_5_experimentos()

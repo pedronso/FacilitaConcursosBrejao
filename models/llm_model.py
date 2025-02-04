@@ -14,16 +14,29 @@ class LLMModel:
             model=model_name,
             api_key=os.getenv("GROQ_API_KEY"),
             temperature=0,
-            max_tokens=2500,  # 🔹 Agora limitamos para 2500 tokens por requisição
+            max_tokens=2000, 
             timeout=None,
             max_retries=2
         )
 
     def generate_response(self, prompt):
-        """Gera uma resposta baseada no prompt fornecido."""
-        messages = [("system", "Você é um assistente especializado em concursos públicos."),
-                    ("human", prompt)]
-        return self.llm.invoke(messages).content  # Retorna apenas o conteúdo da resposta
+        """Gera uma resposta baseada no prompt fornecido, dividindo em partes menores."""
+        MAX_INPUT_TOKENS = 2000
+        chunks = [prompt[i:i + MAX_INPUT_TOKENS] for i in range(0, len(prompt), MAX_INPUT_TOKENS)]
+
+        responses = []
+        for chunk in chunks:
+            messages = [("system", "Você é um assistente especializado em concursos públicos."),
+                        ("human", chunk)]
+            try:
+                response = self.llm.invoke(messages).content
+                responses.append(response)
+            except Exception as e:
+                print(f"Erro ao processar chunk: {e}")
+        
+        return " ".join(responses)  # 🔹 Junta todas as respostas
+
+
 
 # Teste
 if __name__ == "__main__":
