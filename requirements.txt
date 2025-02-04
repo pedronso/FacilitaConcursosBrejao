@@ -9,3 +9,4 @@ pandas
 faiss-cpu
 sentence-transformers
 python-dotenv
+langchain-community
