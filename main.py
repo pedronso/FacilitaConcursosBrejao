@@ -7,11 +7,8 @@ from models.embeddings_model import EmbeddingModel
 from vectorstore.faiss_store import FAISSVectorStore
 from pipelines.rag import RAGPipeline
 from reports.metrics import avaliar_sistema
-import streamlit.cli as stcli
-import sys
 import subprocess
-
-
+import sys
 
 BASE_URL = "https://www.pciconcursos.com.br/concursos/nacional/"
 CSV_EDITAIS = "data/processed/editais_concursos.csv"
@@ -33,32 +30,71 @@ def etapa_2_extracao():
     df_resultados = pd.DataFrame(resultados)
     df_resultados.to_csv(CSV_CHUNKS, index=False)
     print(f"✅ Textos extraídos e salvos em: {CSV_CHUNKS}")
+    
+def verificar_existencia_arquivo(caminho):
+    """Verifica se o arquivo existe antes de tentar utilizá-lo."""
+    if not os.path.exists(caminho):
+        print(f"❌ Arquivo não encontrado: {caminho}")
+        return False
+    return True
 
 def etapa_3_embeddings():
     """Gera embeddings e cria o banco FAISS."""
     print("\n🧠 [3/6] Criando embeddings e index FAISS...")
+
+    if not verificar_existencia_arquivo(CSV_CHUNKS):
+        print("⚠️ Pulando etapa de embeddings pois os chunks não foram extraídos.")
+        return
+
     df_chunks = pd.read_csv(CSV_CHUNKS)
+
+    if "Chunks" not in df_chunks.columns:
+        print("⚠️ A coluna 'Chunks' não foi encontrada no CSV. Verifique os dados processados.")
+        return
+
+    # Verifica se a coluna 'Chunks' é string e converte para lista se necessário
+    if isinstance(df_chunks["Chunks"].iloc[0], str):
+        try:
+            df_chunks["Chunks"] = df_chunks["Chunks"].apply(eval)
+        except:
+            print("⚠️ Erro ao converter 'Chunks' para lista.")
+            return
+
     store = FAISSVectorStore()
-    store.create_index(df_chunks["Chunks"].tolist())
+    store.create_index([" ".join(chunk) if isinstance(chunk, list) else chunk for chunk in df_chunks["Chunks"]])
+
+
     print(f"✅ FAISS index salvo em: {INDEX_FAISS}")
 
 def etapa_4_testar_rag():
     """Executa um teste no chatbot RAG."""
     print("\n🤖 [4/6] Testando consultas ao sistema RAG...")
+    
     rag = RAGPipeline()
     queries_teste = [
         "Quais são os concursos para engenheiros?",
         "Quais os prazos de inscrição?",
-        "Tem algum concurso para nível médio?"
+        "Tem algum concurso para nível médio?",
+        "Quantas vagas estão abertas para o IBAMA?",
+        "O MPU está com concursos abertos?"
     ]
     
     for query in queries_teste:
-        resposta = rag.generate_answer(query)
-        print(f"\n🔹 Pergunta: {query}")
-        print(f"💬 Resposta: {resposta}")
+        try:
+            resposta = rag.generate_answer(query)
+            print(f"\n🔹 Pergunta: {query}")
+            print(f"💬 Resposta: {resposta}")
+        except Exception as e:
+            print(f"❌ Erro ao gerar resposta para '{query}': {e}")
 
 def run_script(script_path):
     """Executa um script Python e exibe a saída em tempo real."""
+    if not os.path.exists(script_path):
+        print(f"⚠️ Arquivo não encontrado: {script_path}")
+        return
+
+    print(f"▶️ Executando: {script_path} ...")
+
     try:
         process = subprocess.Popen(["python", script_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         for line in iter(process.stdout.readline, ''):
@@ -81,11 +117,7 @@ def etapa_5_experimentos():
     ]
 
     for script in scripts_experimentos:
-        if os.path.exists(script):
-            print(f"▶️ Executando: {script} ...")
-            run_script(script)
-        else:
-            print(f"⚠️ Arquivo não encontrado: {script}")
+        run_script(script)
 
     print("\n✅ Experimentos concluídos!")
 

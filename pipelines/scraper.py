@@ -69,10 +69,11 @@ def fetch_pdf_links(edital_url):
 
     return pdf_paths if pdf_paths else ["Nenhum PDF encontrado"]
 
-pasta_destino = '../data/raw'
-editais_info = fetch_edital_links(BASE_URL, pasta_destino)
+if __name__ == "__main__":
+    pasta_destino = '../data/raw'
+    editais_info = fetch_edital_links(BASE_URL, pasta_destino)
 
-df_editais = pd.DataFrame(editais_info)
-df_editais.to_csv("editais_concursos.csv", index=False, encoding='utf-8')
+    df_editais = pd.DataFrame(editais_info)
+    df_editais.to_csv("editais_concursos.csv", index=False, encoding='utf-8')
 
-print(df_editais.head())
+    print(df_editais.head())

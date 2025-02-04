@@ -60,16 +60,18 @@ def processar_downloads_e_extração(csv_path, pasta_destino):
 
     return resultados
 
-csv_path = 'editais_concursos.csv'
-pasta_destino = '../data/raw/'
 
-resultados = processar_downloads_e_extração(csv_path, pasta_destino)
+if __name__ == "__main__":
+    csv_path = 'editais_concursos.csv'
+    pasta_destino = '../data/raw/'
 
-for resultado in resultados:
-    print(f"\nTítulo: {resultado['Título']}")
-    print(f"Detalhes: {resultado['Detalhes']}")
-    print(f"Número de Chunks: {resultado['Número de Chunks']}")
-    print(f"Primeiro Chunk: {resultado['Chunks'][0][:300]}\n")
+    resultados = processar_downloads_e_extração(csv_path, pasta_destino)
 
-df_resultados = pd.DataFrame(resultados)
-df_resultados.to_csv("data/processed/results_extraction_chunks.csv", index=False, encoding='utf-8')
+    for resultado in resultados:
+        print(f"\nTítulo: {resultado['Título']}")
+        print(f"Detalhes: {resultado['Detalhes']}")
+        print(f"Número de Chunks: {resultado['Número de Chunks']}")
+        print(f"Primeiro Chunk: {resultado['Chunks'][0][:300]}\n")
+
+    df_resultados = pd.DataFrame(resultados)
+    df_resultados.to_csv("data/processed/results_extraction_chunks.csv", index=False, encoding='utf-8')
