@@ -9,9 +9,9 @@ class EmbeddingModel:
         """Gera embeddings para um determinado texto."""
         return self.embedding_model.embed_query(text)
 
-# Teste Unitário
+# Teste
 if __name__ == "__main__":
     model = EmbeddingModel()
     texto_teste = "Este é um teste para gerar embeddings."
     embedding = model.get_embedding(texto_teste)
-    print(f"Embedding gerado: {embedding[:5]}...")  # Exibe os primeiros valores do vetor
+    print(f"Embedding gerado: {embedding}...")

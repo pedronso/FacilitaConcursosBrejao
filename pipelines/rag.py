@@ -66,7 +66,7 @@ class RAGPipeline:
 
         return " ".join(respostas)  # Junta todas as partes da resposta final
 
-# Teste Unitário
+# Teste
 if __name__ == "__main__":
     rag = RAGPipeline(max_tokens_per_request=2500, max_chunks=5, tokens_per_minute_limit=6000)
     query = "Quais concursos estão com inscrições abertas?"

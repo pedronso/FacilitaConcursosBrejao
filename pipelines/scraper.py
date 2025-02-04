@@ -4,7 +4,7 @@ import pandas as pd
 import os
 
 BASE_URL = "https://www.pciconcursos.com.br/concursos/nacional/"
-PASTA_DESTINO = "data/raw/"
+PASTA_DESTINO = "../data/raw/"
 
 def download_pdf(pdf_url, pasta_destino):
     try:
@@ -69,7 +69,7 @@ def fetch_pdf_links(edital_url):
 
     return pdf_paths if pdf_paths else ["Nenhum PDF encontrado"]
 
-pasta_destino = 'pdfs'
+pasta_destino = '../data/raw'
 editais_info = fetch_edital_links(BASE_URL, pasta_destino)
 
 df_editais = pd.DataFrame(editais_info)
