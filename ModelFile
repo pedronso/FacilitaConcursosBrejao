@@ -1,0 +1,6 @@
+FROM llama3.2
+PARAMETER temperature 1
+
+SYSTEM """
+Você é um assistente de concursos, ajude a responder dúvidas sobre concursos e estudos usando esses dados: 
+"""

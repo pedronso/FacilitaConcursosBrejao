@@ -17,7 +17,7 @@ def limpar_texto(texto):
     texto_limpo = texto_limpo.strip()
     return texto_limpo
 
-def dividir_em_chunks(texto, tamanho_maximo=1000):
+def dividir_em_chunks(texto, tamanho_maximo=512):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=tamanho_maximo, chunk_overlap=200)
     chunks = text_splitter.split_text(texto)
     return chunks
@@ -30,46 +30,46 @@ def processar_downloads_e_extração(csv_path, pasta_destino):
 
     resultados = []
 
+    doc_count = 1
     for _, row in df.iterrows():
-        if isinstance(row['PDFs'], str):
+
+        if isinstance(row['PDFs'], str) and doc_count > 0:
             try:
                 pdf_paths = eval(row['PDFs'])
             except:
                 pdf_paths = []
 
             textos_extraidos = []
+            
 
             for pdf_path in pdf_paths:
+                print(pdf_path, _, row)
                 if pdf_path and os.path.exists(pdf_path):
                     texto_pdf = extrair_texto_pdf(pdf_path)
                     texto_limpo = limpar_texto(texto_pdf)
                     textos_extraidos.append(texto_limpo)
-
+                
             texto_completo = " ".join(textos_extraidos)
             
             chunks = dividir_em_chunks(texto_completo)
 
+            """
             resultados.append({
                 'Título': row['Título'],
                 'Detalhes': row['Detalhes'],
                 'PDFs': row['PDFs'],
-                'Texto Extraído': texto_completo,
                 'Número de Chunks': len(chunks),
                 'Chunks': chunks,
             })
+            """
+            doc_count -= 1
+            resultados.extend(chunks)
 
-    return resultados
+    return pd.DataFrame(resultados, columns=["Chunk"])
 
 csv_path = 'editais_concursos.csv'
 pasta_destino = 'pdfs'
 
-resultados = processar_downloads_e_extração(csv_path, pasta_destino)
-
-for resultado in resultados:
-    print(f"\nTítulo: {resultado['Título']}")
-    print(f"Detalhes: {resultado['Detalhes']}")
-    print(f"Número de Chunks: {resultado['Número de Chunks']}")
-    print(f"Primeiro Chunk: {resultado['Chunks'][0][:300]}\n")
-
-df_resultados = pd.DataFrame(resultados)
+df_resultados = processar_downloads_e_extração(csv_path, pasta_destino)
 df_resultados.to_csv("resultados_extracao.csv", index=False, encoding='utf-8')
+print(df_resultados.head())
