@@ -1,4 +1,6 @@
 from langchain_huggingface import HuggingFaceEmbeddings  # ✅ Nova importação correta
+#from langchain_ollama import OllamaEmbeddings
+#import ollama
 
 class EmbeddingModel:
     def __init__(self, model_name="sentence-transformers/all-MiniLM-L6-v2"):
@@ -7,8 +9,28 @@ class EmbeddingModel:
 
     def get_embedding(self, text):
         """Gera embeddings para um determinado texto."""
-        return self.embedding_model.embed_query(text)
+        print(f'👍 gerando embeddings...')
+        a = self.embedding_model.embed_query(text)
+        #print(a)
+        return a
 
+"""
+class OllamaEmbeddingModel:
+    def __init__(self, model_name= 'mxbai-embed-large:latest'):
+        self.embedding_model = OllamaEmbeddings(model="nomic-embed-text")
+        
+    def get_embedding(self, text):
+        print(f'👍 gerando embeddings...')
+        
+        #response = ollama.embed(model="mxbai-embed-large:latest", input=text)
+        #embeddings = response["embeddings"]
+        #return embeddings
+        
+        a = self.embedding_model.embed_query(text)
+        #print(a)
+        return a
+"""
+    
 # Teste
 if __name__ == "__main__":
     model = EmbeddingModel()

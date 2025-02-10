@@ -7,7 +7,13 @@ from models.embeddings_model import EmbeddingModel
 class FAISSVectorStore:
     def __init__(self, index_path="data/embeddings/faiss_index"):
         self.index_path = index_path
+
+        #se for rodar no ollama, pegar o modelo de embedding do ollama
         self.embedding_model = EmbeddingModel()
+        #if not off_line:
+        #else:
+        #    self.embedding_model = OllamaEmbeddingModel()
+
         self.index = None
 
         # Se o índice FAISS não existir, cria um novo

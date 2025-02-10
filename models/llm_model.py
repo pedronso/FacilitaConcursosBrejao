@@ -1,5 +1,7 @@
 from langchain_groq import ChatGroq
 import os
+import json
+import requests
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -35,6 +37,25 @@ class LLMModel:
                 print(f"Erro ao processar chunk: {e}")
         
         return " ".join(responses)  # 🔹 Junta todas as respostas
+
+
+class LocalLLMModel:
+    def __init__(self, model_name= "llama3.2:3b", url= "http://localhost:11434/api/generate"):
+        self.model_name = model_name
+        self.url = url
+        
+
+    def generate_response(self, prompt):
+        payload = {
+            'model' : 'llama3.2:latest',
+            'system': "Você só responde em português. Você é um assistente especializado em concursos públicos.",
+            'prompt': prompt,
+        }
+        with requests.post("http://localhost:11434/api/generate", json=payload, stream=True) as response:
+            for line in response.iter_lines():
+                if line:
+                    data = json.loads(line.decode("utf-8"))
+                    print(data.get("response", ""), end="", flush=True)
 
 
 

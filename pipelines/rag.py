@@ -2,16 +2,18 @@ import time
 import math
 from vectorstore.faiss_store import FAISSVectorStore
 from models.llm_model import LLMModel
+from models.llm_model import LocalLLMModel
 import pandas as pd
 
 class RAGPipeline:
-    def __init__(self, max_tokens_per_request=2500, max_chunks=5, tokens_per_minute_limit=6000):
+    def __init__(self, max_tokens_per_request=2500, max_chunks=8, tokens_per_minute_limit=6000):
         """
         Inicializa a pipeline RAG.
         - max_tokens_per_request: número máximo de tokens enviados para o LLM por requisição.
         - max_chunks: número máximo de chunks recuperados do FAISS.
         - tokens_per_minute_limit: limite de tokens por minuto imposto pela API.
         """
+        self.local_model = LocalLLMModel()
         self.vector_store = FAISSVectorStore()
         self.vector_store.load_index()
         self.llm = LLMModel()
@@ -51,6 +53,9 @@ class RAGPipeline:
         partes_texto = self.split_text(textos_relevantes, self.max_tokens_per_request)
 
         respostas = []
+
+
+
         for i, parte in enumerate(partes_texto):
             self.wait_if_needed()  # Aguarda se necessário antes de enviar mais tokens
 
@@ -65,6 +70,26 @@ class RAGPipeline:
             self.reset_token_usage_if_needed()  # Reseta tokens se o tempo já passou
 
         return " ".join(respostas)  # Junta todas as partes da resposta final
+    
+    def generate_full_answer(self, query):
+        print("pegando indices...")
+        indices = self.vector_store.search(query, k=self.max_chunks)
+        indices = [int(i) for i in indices if 0 <= i < len(self.df_chunks)]
+        print(f'pegado {indices}')
+
+        textos_relevantes = " ".join([self.df_chunks.iloc[i]["Chunks"] for i in indices])
+
+        print(f"Gerando resposta com texto inteiro...")
+
+        prompt = f"Baseando-se somente nos seguintes textos:\n{textos_relevantes}\n\n responda: {query}\n\n e resuma o que tem nos textos"
+        prompt2 = f"resuma os seguintes textos em até 50 palavras cada:\n{textos_relevantes}"
+
+
+        self.local_model.generate_response(prompt=prompt)
+        self.local_model.generate_response(prompt=prompt2)
+
+
+        
 
 # Teste
 if __name__ == "__main__":
