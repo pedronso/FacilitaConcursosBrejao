@@ -82,9 +82,10 @@ def etapa_4_testar_rag(local=False):
     for query in queries_teste:
         try:
             print(f"\n🔹 Pergunta: {query}")
-            rag.generate_full_answer(query)
+            resposta_local = rag.generate_full_answer(query)
             #resposta = rag.generate_answer(query)
             #print(f"💬 Resposta: {resposta}")
+            print(f"💬 Resposta: {resposta_local}")
         except Exception as e:
             print(f"❌ Erro ao gerar resposta para '{query}': {e}")
 

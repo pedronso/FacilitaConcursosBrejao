@@ -40,22 +40,29 @@ class LLMModel:
 
 
 class LocalLLMModel:
-    def __init__(self, model_name= "llama3.2:3b", url= "http://localhost:11434/api/generate"):
+    def __init__(self, model_name= "llama3.2:latest", url= "http://localhost:11434/api/generate"):
         self.model_name = model_name
         self.url = url
         
 
     def generate_response(self, prompt):
         payload = {
-            'model' : 'llama3.2:latest',
+            'model' : self.model_name,
             'system': "Você só responde em português. Você é um assistente especializado em concursos públicos.",
             'prompt': prompt,
         }
+        llm_response = ''
+
         with requests.post("http://localhost:11434/api/generate", json=payload, stream=True) as response:
             for line in response.iter_lines():
                 if line:
                     data = json.loads(line.decode("utf-8"))
-                    print(data.get("response", ""), end="", flush=True)
+                    #print(data.get("response", ""), end="", flush=True)
+                    llm_response = llm_response + data.get("response", "")
+        #print(llm_response)
+        return llm_response
+        
+
 
 
 

@@ -12,3 +12,4 @@ python-dotenv
 langchain-community
 langchain-huggingface
 langchain-groq
+ollama

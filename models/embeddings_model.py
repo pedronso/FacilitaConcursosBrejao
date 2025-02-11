@@ -10,9 +10,9 @@ class EmbeddingModel:
     def get_embedding(self, text):
         """Gera embeddings para um determinado texto."""
         print(f'👍 gerando embeddings...')
-        a = self.embedding_model.embed_query(text)
+        embedded_text = self.embedding_model.embed_query(text)
         #print(a)
-        return a
+        return embedded_text
 
 """
 class OllamaEmbeddingModel:
