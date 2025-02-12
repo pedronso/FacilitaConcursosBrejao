@@ -46,27 +46,38 @@ def etapa_3_embeddings():
         print("⚠️ Pulando etapa de embeddings pois os chunks não foram extraídos.")
         return
 
-    df_chunks = pd.read_csv(CSV_CHUNKS)
 
+    """
     if "Chunks" not in df_chunks.columns:
         print("⚠️ A coluna 'Chunks' não foi encontrada no CSV. Verifique os dados processados.")
         return
+    """
 
     # Verifica se a coluna 'Chunks' é string e converte para lista se necessário
+    """
     if isinstance(df_chunks["Chunks"].iloc[0], str):
         try:
             df_chunks["Chunks"] = df_chunks["Chunks"].apply(eval)
         except:
             print("⚠️ Erro ao converter 'Chunks' para lista.")
             return
+    """
 
+    df_original = pd.read_csv(CSV_CHUNKS)
+    df_chunks = df_original.melt(var_name="Chunk_Index", value_name="Chunk").dropna().reset_index(drop=True)
+
+    print(df_chunks.columns)
+    print(df_chunks.head())
+    
     store = FAISSVectorStore()
-    store.create_index([" ".join(chunk) if isinstance(chunk, list) else chunk for chunk in df_chunks["Chunks"]])
+    #texts = [" ".join(map(str, row.dropna())) for _, row in df_chunks.iterrows()]
+    #store.create_index([" ".join(chunk) if isinstance(chunk, list) else chunk for chunk in df_chunks["Chunks"]])
+    store.create_index(df_chunks['Chunk'].to_list())
 
 
     print(f"✅ FAISS index salvo em: {INDEX_FAISS}")
 
-def etapa_4_testar_rag(local=False):
+def etapa_4_testar_rag( ):
     """Executa um teste no chatbot RAG."""
     print("\n🤖 [4/6] Testando consultas ao sistema RAG...")
     
@@ -148,10 +159,10 @@ if __name__ == "__main__":
 
     #etapa_1_scraper()
     #etapa_2_extracao()
-    etapa_3_embeddings()
+    #etapa_3_embeddings()
     etapa_4_testar_rag()
-    etapa_5_experimentos()
-    etapa_6_metricas()
+    #etapa_5_experimentos()
+    #etapa_6_metricas()
 
     total_time = time.time() - start_time
     print(f"\n⏳ Tempo total de execução: {total_time:.2f} segundos.")

@@ -23,6 +23,7 @@ class LLMModel:
 
     def generate_response(self, prompt):
         """Gera uma resposta baseada no prompt fornecido, dividindo em partes menores."""
+        """
         MAX_INPUT_TOKENS = 2000
         chunks = [prompt[i:i + MAX_INPUT_TOKENS] for i in range(0, len(prompt), MAX_INPUT_TOKENS)]
 
@@ -35,8 +36,15 @@ class LLMModel:
                 responses.append(response)
             except Exception as e:
                 print(f"Erro ao processar chunk: {e}")
-        
-        return " ".join(responses)  # 🔹 Junta todas as respostas
+        """
+        messages = [('system', "Você é um assistente especializado em concursos públicos."),
+                    ("human", prompt)]
+        try:
+            resposta = self.llm.invoke(messages).content
+        except Exception as e:
+            print(f"Erro ao processar: {e}")
+
+        return resposta
 
 
 class LocalLLMModel:
@@ -48,7 +56,7 @@ class LocalLLMModel:
     def generate_response(self, prompt):
         payload = {
             'model' : self.model_name,
-            'system': "Você só responde em português. Você é um assistente especializado em concursos públicos.",
+            'system': """Você é um especialista em concursos públicos, ajude a responder as dúvidas, e caso não sabia, não responda.""",
             'prompt': prompt,
         }
         llm_response = ''

@@ -17,10 +17,14 @@ def limpar_texto(texto):
     texto_limpo = texto_limpo.strip()
     return texto_limpo
 
-def dividir_em_chunks(texto, tamanho_maximo=1000, chunk_overlap=200):
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=tamanho_maximo, chunk_overlap=chunk_overlap)
+def dividir_em_chunks(texto, rotulo, tamanho_maximo=1000, chunk_overlap=200):
+    tamanho_rotulo = len(f'[{rotulo}] ')
+    tamanho_ajustado = tamanho_maximo-tamanho_rotulo
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=tamanho_ajustado, chunk_overlap=chunk_overlap)
     chunks = text_splitter.split_text(texto)
-    return chunks
+
+    chunks_rotulados = [f'[{rotulo}] {chunk}' for chunk in chunks]
+    return chunks_rotulados
 
 def processar_downloads_e_extração(csv_path, pasta_destino):
     df = pd.read_csv(csv_path)
@@ -38,40 +42,53 @@ def processar_downloads_e_extração(csv_path, pasta_destino):
                 pdf_paths = []
 
             textos_extraidos = []
-
             for pdf_path in pdf_paths:
-                if pdf_path and os.path.exists(pdf_path):
-                    texto_pdf = extrair_texto_pdf(pdf_path)
+                print(pdf_path)
+                full_pdf_path = pdf_path[3:]
+
+                if full_pdf_path and os.path.exists(full_pdf_path):
+                    print("existe o path")
+                    texto_pdf = extrair_texto_pdf(full_pdf_path)
                     texto_limpo = limpar_texto(texto_pdf)
                     textos_extraidos.append(texto_limpo)
+                else:
+                    print(f"nao existe o path{full_pdf_path}: {pdf_path}")
 
             texto_completo = " ".join(textos_extraidos)
             
-            chunks = dividir_em_chunks(texto_completo)
+            chunks = dividir_em_chunks(texto_completo, row['Título'])
+            print(chunks)
 
+            """
             resultados.append({
                 'Título': row['Título'],
                 'Detalhes': row['Detalhes'],
                 'PDFs': row['PDFs'],
-                'Texto Extraído': texto_completo,
+                #'Texto Extraído': texto_completo,
                 'Número de Chunks': len(chunks),
                 'Chunks': chunks,
             })
+            """
+            resultados.append(chunks)
 
     return resultados
 
 
 if __name__ == "__main__":
-    csv_path = 'editais_concursos.csv'
-    pasta_destino = '../data/raw/'
+    csv_path = 'data/processed/editais_concursos.csv'
+    pasta_destino = 'data/raw/'
 
     resultados = processar_downloads_e_extração(csv_path, pasta_destino)
 
     for resultado in resultados:
+        print(f'{resultado}')
+        continue
         print(f"\nTítulo: {resultado['Título']}")
         print(f"Detalhes: {resultado['Detalhes']}")
         print(f"Número de Chunks: {resultado['Número de Chunks']}")
         print(f"Primeiro Chunk: {resultado['Chunks'][0][:300]}\n")
 
+    
     df_resultados = pd.DataFrame(resultados)
     df_resultados.to_csv("data/processed/results_extraction_chunks.csv", index=False, encoding='utf-8')
+    

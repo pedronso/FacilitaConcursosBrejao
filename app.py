@@ -1,5 +1,8 @@
 import streamlit as st
+import torch
 from pipelines.rag import RAGPipeline
+
+torch.classes.__path__ = []
 
 st.title("🤖 Chatbot de Editais de Concursos")
 

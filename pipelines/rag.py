@@ -17,7 +17,8 @@ class RAGPipeline:
         self.vector_store = FAISSVectorStore()
         self.vector_store.load_index()
         self.llm = LLMModel()
-        self.df_chunks = pd.read_csv("data/processed/results_extraction_chunks.csv")
+        self.df_original = pd.read_csv("data/processed/results_extraction_chunks.csv")
+        self.df_chunks = self.df_original.melt(var_name="Chunk_Index", value_name="Chunk").dropna().reset_index(drop=True)
         self.max_tokens_per_request = max_tokens_per_request
         self.max_chunks = max_chunks
         self.tokens_per_minute_limit = tokens_per_minute_limit
@@ -47,15 +48,17 @@ class RAGPipeline:
     def generate_answer(self, query):
         """Busca os chunks relevantes e gera resposta via LLM em partes para evitar perda de dados."""
         indices = self.vector_store.search(query, k=self.max_chunks)
-        textos_relevantes = " ".join([self.df_chunks.iloc[i]["Chunks"] for i in indices])
+        indices = [int(i) for i in indices if 0 <= i < len(self.df_chunks)]
+        textos_relevantes = " ".join([self.df_chunks.iloc[i]["Chunk"] for i in indices])
 
+        #print(textos_relevantes)
         # Divide o texto excedente em partes de no máximo `max_tokens_per_request`
-        partes_texto = self.split_text(textos_relevantes, self.max_tokens_per_request)
+        #partes_texto = self.split_text(textos_relevantes, self.max_tokens_per_request)
+        
+        prompt = f"Baseando-se nos seguintes textos:{textos_relevantes}\n\n responda: {query}"
+        resposta = self.llm.generate_response(prompt)
 
-        respostas = []
-
-
-
+        """
         for i, parte in enumerate(partes_texto):
             self.wait_if_needed()  # Aguarda se necessário antes de enviar mais tokens
 
@@ -68,20 +71,35 @@ class RAGPipeline:
             self.tokens_used += self.max_tokens_per_request
 
             self.reset_token_usage_if_needed()  # Reseta tokens se o tempo já passou
+        """
 
-        return " ".join(respostas)  # Junta todas as partes da resposta final
+        return resposta
     
     def generate_full_answer(self, query):
+        """
         print("pegando indices...")
         indices = self.vector_store.search(query, k=self.max_chunks)
         indices = [int(i) for i in indices if 0 <= i < len(self.df_chunks)]
         print(f'pegado {indices}')
 
         textos_relevantes = " ".join([self.df_chunks.iloc[i]["Chunks"] for i in indices])
+        """
+        indices = self.vector_store.search(query, k=self.max_chunks)
+        indices = [int(i) for i in indices if 0 <= i < len(self.df_chunks)]
+        print(f'Pegando índices: {indices}')
 
-        print(f"Gerando resposta com texto inteiro...")
+        textos_relevantes = " ".join([self.df_chunks.iloc[i]["Chunk"] for i in indices])
+        """
+        textos_relevantes = " ".join([
+            " ".join(map(str, self.df_chunks.iloc[i].dropna())) for i in indices
+        ])
 
-        prompt = f"Baseando-se somente nos seguintes textos:\n{textos_relevantes}\n\n responda: {query}\n\n e resuma o que tem nos textos"
+        """
+
+        #print(f"Gerando resposta com texto inteiro...{textos_relevantes}")
+
+        prompt = f"Baseando-se somente nos seguintes textos:\n{textos_relevantes}\n\n responda: {query}"
+        #prompt = f"Me diga o que tem nos seguintes textos separando cada um:\n{textos_relevantes}"
         prompt2 = f"resuma os seguintes textos em até 50 palavras cada:\n{textos_relevantes}"
 
 
@@ -89,6 +107,7 @@ class RAGPipeline:
         #resumo
         #self.local_model.generate_response(prompt=prompt2)
 
+        #f'{textos_relevantes}\n tamanho:{len(textos_relevantes)}\n indices: {indices}'
         return resposta
 
 
@@ -97,5 +116,6 @@ class RAGPipeline:
 # Teste
 if __name__ == "__main__":
     rag = RAGPipeline(max_tokens_per_request=2500, max_chunks=5, tokens_per_minute_limit=6000)
-    query = "Quais concursos estão com inscrições abertas?"
-    print(rag.generate_answer(query))
+    query = "Concurso do ibama"
+    print(rag.generate_full_answer(query))
+    #print(rag.generate_answer(query))
