@@ -37,7 +37,16 @@ class LLMModel:
             except Exception as e:
                 print(f"Erro ao processar chunk: {e}")
         """
-        messages = [('system', "Você é um assistente especializado em concursos públicos."),
+        system = """Você é um assistente especializado em concursos públicos.
+Responda somente em português.
+Seja direto.
+Se não souber, apenas diga que não sabe.
+Caso a informação venha repetida, apenas cite ela uma vez.
+Fale somente sobre assuntos relacionados a concursos e estudos.
+"""
+        #print(system)
+        #print(system.strip())
+        messages = [('system', system),
                     ("human", prompt)]
         try:
             resposta = self.llm.invoke(messages).content

@@ -6,7 +6,7 @@ from models.llm_model import LocalLLMModel
 import pandas as pd
 
 class RAGPipeline:
-    def __init__(self, max_tokens_per_request=2500, max_chunks=5, tokens_per_minute_limit=6000):
+    def __init__(self, max_tokens_per_request=2500, max_chunks=10, tokens_per_minute_limit=6000):
         """
         Inicializa a pipeline RAG.
         - max_tokens_per_request: número máximo de tokens enviados para o LLM por requisição.
@@ -55,7 +55,7 @@ class RAGPipeline:
         # Divide o texto excedente em partes de no máximo `max_tokens_per_request`
         #partes_texto = self.split_text(textos_relevantes, self.max_tokens_per_request)
         
-        prompt = f"Baseando-se nos seguintes textos:{textos_relevantes}\n\n responda: {query}"
+        prompt = f"Baseando-se somente nos seguintes textos:{textos_relevantes}\n\n responda: {query}"
         resposta = self.llm.generate_response(prompt)
 
         """

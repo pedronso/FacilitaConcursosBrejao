@@ -17,14 +17,15 @@ def limpar_texto(texto):
     texto_limpo = texto_limpo.strip()
     return texto_limpo
 
-def dividir_em_chunks(texto, rotulo, tamanho_maximo=1000, chunk_overlap=200):
-    tamanho_rotulo = len(f'[{rotulo}] ')
+def dividir_em_chunks(texto, rotulo, com_rotulo=False, tamanho_maximo=1024, chunk_overlap=208):
+    tamanho_rotulo = len(f'[{rotulo}] ') if com_rotulo else 0
+    
     tamanho_ajustado = tamanho_maximo-tamanho_rotulo
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=tamanho_ajustado, chunk_overlap=chunk_overlap)
     chunks = text_splitter.split_text(texto)
 
-    chunks_rotulados = [f'[{rotulo}] {chunk}' for chunk in chunks]
-    return chunks_rotulados
+    chunks_tratados = [f'[{rotulo}] {chunk}' for chunk in chunks] if com_rotulo else chunks
+    return chunks_tratados
 
 def processar_downloads_e_extração(csv_path, pasta_destino):
     df = pd.read_csv(csv_path)

@@ -9,6 +9,10 @@ from pipelines.rag import RAGPipeline
 from reports.metrics import avaliar_sistema
 import subprocess
 import sys
+import json
+
+from time import sleep
+
 
 BASE_URL = "https://www.pciconcursos.com.br/concursos/nacional/"
 CSV_EDITAIS = "data/processed/editais_concursos.csv"
@@ -82,6 +86,7 @@ def etapa_4_testar_rag( ):
     print("\n🤖 [4/6] Testando consultas ao sistema RAG...")
     
     rag = RAGPipeline()
+    """
     queries_teste = [
         "Quais são os prazos de inscrição do concurso da marinha?",
         "Quais são os concursos para engenheiros?",
@@ -89,16 +94,55 @@ def etapa_4_testar_rag( ):
         "Quantas vagas estão abertas para o IBAMA?",
         "O MPU está com concursos abertos?"
     ]
-    
-    for query in queries_teste:
+    """
+    concursos = [
+        "da aeronáutica",
+        "da PPSA",
+        "do Ibama",
+        "da Marinha",
+        "do MPU",
+        "da AEB",
+        "da CNEN",
+        "da EBSERH",
+        "da FUNAI",
+        "do IBGE",
+        "do ICMBio",
+        "do TRF"
+    ]
+    queries_teste =[
+        "Qual a data da prova para o concurso",
+        "Qual é a data da inscrição para o concurso",
+        "Qual é o salário para o concurso",
+        "Qual é a quantidade de vagas para o concurso",
+        "Quais são os assuntos da prova do concurso",
+        "Qual é a carga horária para os trabalhos do concurso"
+    ]
+
+    perguntas = []
+    perguntas_repostas_dict = {}
+
+    for concurso in concursos:
+        for querie in queries_teste:
+            pergunta = f'{querie} {concurso}'
+
+            perguntas.append(pergunta)
+
+    #print(perguntas)
+
+    for pergunta in perguntas:
         try:
-            print(f"\n🔹 Pergunta: {query}")
-            resposta_local = rag.generate_full_answer(query)
-            #resposta = rag.generate_answer(query)
-            #print(f"💬 Resposta: {resposta}")
-            print(f"💬 Resposta: {resposta_local}")
+            print(f"\n🔹 Pergunta: {pergunta}")
+            #resposta_local = rag.generate_full_answer(query)
+            resposta = rag.generate_answer(pergunta)
+            print(f"💬 Resposta: {resposta}")
+            #print(f"💬 Resposta: {resposta_local}")
+            perguntas_repostas_dict[pergunta] = str(resposta)
+            json_string = json.dumps(perguntas_repostas_dict, indent=4, ensure_ascii=False)
+            with open('data/responses/respostas.json', 'w', encoding='utf-8') as arquivo:
+                arquivo.write(json_string)
+            sleep(1)
         except Exception as e:
-            print(f"❌ Erro ao gerar resposta para '{query}': {e}")
+            print(f"❌ Erro ao gerar resposta para '{pergunta}': {e}")
 
 def run_script(script_path):
     """Executa um script Python e exibe a saída em tempo real."""
