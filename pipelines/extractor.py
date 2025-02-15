@@ -3,6 +3,7 @@ import pandas as pd
 from pdfminer.high_level import extract_text
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import re
+from tests_vars import dict_models
 
 def extrair_texto_pdf(pdf_path):
     try:
@@ -17,7 +18,7 @@ def limpar_texto(texto):
     texto_limpo = texto_limpo.strip()
     return texto_limpo
 
-def dividir_em_chunks(texto, rotulo, com_rotulo=False, tamanho_maximo=1024, chunk_overlap=208):
+def dividir_em_chunks(texto, rotulo, com_rotulo=False, tamanho_maximo=dict_models['chunk_size'], chunk_overlap=dict_models['chunk_overlap']):
     tamanho_rotulo = len(f'[{rotulo}] ') if com_rotulo else 0
     
     tamanho_ajustado = tamanho_maximo-tamanho_rotulo
@@ -89,7 +90,7 @@ if __name__ == "__main__":
         print(f"Número de Chunks: {resultado['Número de Chunks']}")
         print(f"Primeiro Chunk: {resultado['Chunks'][0][:300]}\n")
 
-    
+
     df_resultados = pd.DataFrame(resultados)
     df_resultados.to_csv("data/processed/results_extraction_chunks.csv", index=False, encoding='utf-8')
     

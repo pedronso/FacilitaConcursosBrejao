@@ -10,8 +10,7 @@ from reports.metrics import avaliar_sistema
 import subprocess
 import sys
 import json
-
-from time import sleep
+import tests_vars
 
 
 BASE_URL = "https://www.pciconcursos.com.br/concursos/nacional/"
@@ -34,7 +33,7 @@ def etapa_2_extracao():
     df_resultados = pd.DataFrame(resultados)
     df_resultados.to_csv(CSV_CHUNKS, index=False)
     print(f"✅ Textos extraídos e salvos em: {CSV_CHUNKS}")
-    
+
 def verificar_existencia_arquivo(caminho):
     """Verifica se o arquivo existe antes de tentar utilizá-lo."""
     if not os.path.exists(caminho):
@@ -115,7 +114,7 @@ def etapa_4_testar_rag( ):
         "Qual é o salário para o concurso",
         "Qual é a quantidade de vagas para o concurso",
         "Quais são os assuntos da prova do concurso",
-        "Qual é a carga horária para os trabalhos do concurso"
+        "Qual é a carga horária para os cargos do concurso"
     ]
 
     perguntas = []
@@ -138,9 +137,10 @@ def etapa_4_testar_rag( ):
             #print(f"💬 Resposta: {resposta_local}")
             perguntas_repostas_dict[pergunta] = str(resposta)
             json_string = json.dumps(perguntas_repostas_dict, indent=4, ensure_ascii=False)
-            with open('data/responses/respostas.json', 'w', encoding='utf-8') as arquivo:
+            save_local = f'{tests_vars.dict_models['ai_model']}-{tests_vars.dict_models['embedding_model'].replace('/', '-')}-{tests_vars.dict_models['chunk_size']}'
+            with open(f'data/responses/{save_local}.json', 'w', encoding='utf-8') as arquivo:
                 arquivo.write(json_string)
-            sleep(1)
+            #sleep(1)
         except Exception as e:
             print(f"❌ Erro ao gerar resposta para '{pergunta}': {e}")
 
@@ -193,6 +193,12 @@ def etapa_6_metricas():
     total_time = time.time() - start_time
     print(f"\n⏳ Tempo total da avaliação: {total_time:.2f} segundos.")
 
+
+def etapa_7_avaliar_respostas():
+
+    pass
+
+
 def iniciar_interface():
     """Executa a interface Streamlit."""
     print("\n🚀 Iniciando interface web...")
@@ -204,9 +210,10 @@ if __name__ == "__main__":
     #etapa_1_scraper()
     #etapa_2_extracao()
     #etapa_3_embeddings()
-    etapa_4_testar_rag()
+    #etapa_4_testar_rag()
     #etapa_5_experimentos()
     #etapa_6_metricas()
+    etapa_7_avaliar_respostas()
 
     total_time = time.time() - start_time
     print(f"\n⏳ Tempo total de execução: {total_time:.2f} segundos.")

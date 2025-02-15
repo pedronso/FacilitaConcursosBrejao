@@ -4,9 +4,10 @@ from vectorstore.faiss_store import FAISSVectorStore
 from models.llm_model import LLMModel
 from models.llm_model import LocalLLMModel
 import pandas as pd
+import tests_vars
 
 class RAGPipeline:
-    def __init__(self, max_tokens_per_request=2500, max_chunks=10, tokens_per_minute_limit=6000):
+    def __init__(self, max_tokens_per_request=2500, max_chunks=tests_vars.dict_models["topk"], tokens_per_minute_limit=6000):
         """
         Inicializa a pipeline RAG.
         - max_tokens_per_request: número máximo de tokens enviados para o LLM por requisição.
@@ -48,6 +49,7 @@ class RAGPipeline:
     def generate_answer(self, query):
         """Busca os chunks relevantes e gera resposta via LLM em partes para evitar perda de dados."""
         indices = self.vector_store.search(query, k=self.max_chunks)
+        print(self.max_chunks)
         indices = [int(i) for i in indices if 0 <= i < len(self.df_chunks)]
         textos_relevantes = " ".join([self.df_chunks.iloc[i]["Chunk"] for i in indices])
 
@@ -57,21 +59,6 @@ class RAGPipeline:
         
         prompt = f"Baseando-se somente nos seguintes textos:{textos_relevantes}\n\n responda: {query}"
         resposta = self.llm.generate_response(prompt)
-
-        """
-        for i, parte in enumerate(partes_texto):
-            self.wait_if_needed()  # Aguarda se necessário antes de enviar mais tokens
-
-            print(f"🔹 Enviando parte {i+1}/{len(partes_texto)} para o LLM...")
-            prompt = f"Baseando-se nos seguintes textos, responda:\n{parte}\n\nPergunta: {query}"
-            resposta = self.llm.generate_response(prompt)
-            respostas.append(resposta)
-
-            # Atualiza o contador de tokens usados
-            self.tokens_used += self.max_tokens_per_request
-
-            self.reset_token_usage_if_needed()  # Reseta tokens se o tempo já passou
-        """
 
         return resposta
     
@@ -93,7 +80,6 @@ class RAGPipeline:
         textos_relevantes = " ".join([
             " ".join(map(str, self.df_chunks.iloc[i].dropna())) for i in indices
         ])
-
         """
 
         #print(f"Gerando resposta com texto inteiro...{textos_relevantes}")
