@@ -13,3 +13,4 @@ langchain-community
 langchain-huggingface
 langchain-groq
 ollama
+tiktoken
