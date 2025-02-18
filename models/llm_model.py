@@ -23,12 +23,24 @@ class LLMModel:
         )
 
     def generate_response(self, prompt):
-        system = """Você é um assistente especializado em concursos públicos.
-Responda somente em português.
-Seja direto.
-Se não souber, apenas diga que não sabe.
-Caso a informação venha repetida, apenas cite ela uma vez.
-Fale somente sobre assuntos relacionados a concursos e estudos.
+        context = "IBGE - ANEXO I – Quadro de Vagas e Postos de Inscrição {‘Função’: ‘APM’, ‘UF’: ‘ES’, ‘Município’: ‘Cariacica’, ‘VAGAS’: ‘2’, ‘AC’: ‘1’, ‘PPP’: ‘1’, ‘PcD’: ‘0’, ‘Endereço para inscrições’: ‘Av. Nossa Sra. dos Navegantes, 675 (Edifício Palácio do Café), 9º andar - Enseada do Suá. Vitória/ES’}, {‘Função’: ‘APM’, ‘UF’: ‘ES’, ‘Município’: ‘Vitória’, ‘VAGAS’: ‘12’, ‘AC’: ‘8’, ‘PPP’: ‘2’, ‘PcD’: ‘2’, ‘Endereço para inscrições’: ‘Av. Nossa Sra. dos Navegantes, 675 (Edifício Palácio do Café), 9º andar - Enseada do Suá. Vitória/ES’}, {‘Função’: ‘APM’, ‘UF’: ‘MG’, ‘Município’: ‘Iturama’, ‘VAGAS’: ‘2’, ‘AC’: ‘1’, ‘PPP’: ‘1’, ‘PcD’: ‘0’, ‘Endereço para inscrições’: ‘Rua Armando Fratari, 867, Vila Olímpica. Iturama/MG’}, {‘Função’: ‘APM’, ‘UF’: ‘MS’, ‘Município’: ‘Campo Grande’, ‘VAGAS’: ‘7’, ‘AC’: ‘6’, ‘PPP’: ‘1’, ‘PcD’: ‘0’, ‘Endereço para inscrições’: ‘Rua Barão do Rio Branco, 1431, Centro. Campo Grande/MS’}, {‘Função’: ‘APM’, ‘UF’: ‘SC’, ‘Município’: ‘Concórdia’, ‘VAGAS’: ‘5’, ‘AC’: ‘4’, ‘PPP’: ‘1’, ‘PcD’: ‘0’, ‘Endereço para inscrições’: ‘Rua Marechal Deodoro, 772, Centro. Concórdia/SC’}, {‘Função’: ‘APM’, ‘UF’: ‘SC’, ‘Município’: ‘Rio do Sul’, ‘VAGAS’: ‘1’, ‘AC’: ‘1’, ‘PPP’: ‘0’, ‘PcD’: ‘0’, ‘Endereço para inscrições’: ‘Rua Tuiuti, 20, salas 401 e 402, Centro. Rio do Sul/SC’}, {‘Função’: ‘SCQ’, ‘UF’: ‘SC’, ‘Município’: ‘Palmitos’, ‘VAGAS’: ‘1’, ‘AC’: ‘1’, ‘PPP’: ‘0’, ‘PcD’: ‘0’, ‘Endereço para inscrições’: ‘Rua Visconde de Rio Branco, 932, sala 102, Centro. Palmitos/SC’}"
+        promp1 = f"Baseando-se somente nos seguintes textos:{context}\n\n responda: Quais são os quadros de vagas e postos de inscrição para o ibge?"
+        system = """Você é um assistente especializado em concursos públicos e estudos para provas.  
+Responda **apenas em português** e de forma **clara e objetiva**.  
+
+📌 **Regras de resposta:**  
+- Se a pergunta não estiver relacionada a concursos ou estudos, diga que não pode ajudar.  
+- Se não souber a resposta, apenas diga **"Não tenho essa informação."**  
+- Se houver repetição de informações no contexto, mencione cada item **apenas uma vez**.  
+- Se houver leis, artigos ou regras nos editais, priorize a informação mais recente.  
+- Sempre que possível, explique **com base no edital e em regras oficiais**.  
+
+🔎 **Exemplo de comportamento esperado:**  
+✅ **Usuário:** "Quantas vagas há para o cargo X?"  
+✅ **Assistente:** "O edital informa que há 30 vagas para o cargo X."  
+
+🚫 **Usuário:** "Me fale sobre esportes."  
+🚫 **Assistente:** "Eu sou especializado apenas em concursos públicos e estudos."  
 """
         messages = [('system', system),
                     ("human", prompt)]

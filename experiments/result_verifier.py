@@ -12,6 +12,9 @@ testes_reviews = {
 
 llm_reviewer = LLMReviewerModel()
 
+def __init__(self):
+    self.llm_reviewer = LLMReviewerModel()
+
 for key, value in resultados.items():
     print(value['respostas'])
     for _key in value['respostas']:

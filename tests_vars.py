@@ -1,8 +1,18 @@
+# thenlper/gte-large quase | bom
+# sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 | mais ou menos
+# intfloat/multilingual-e5-base | ruim
+# intfloat/e5-large-v2 | 
+
+
+# llama3-70b-8192
+# deepseek-r1-distill-llama-70b
+# mixtral-8x7b-32768
 
 dict_models = {
-    'ai_model' : 'llama3-70b-8192',
-    'embedding_model': 'sentence-transformers/all-mpnet-base-v2',
-    'chunk_size': 1000,
-    'chunk_overlap': 200,
-    'topk': 10
+    'ai_model' : 'deepseek-r1-distill-llama-70b',
+    'embedding_model': 'thenlper/gte-large',
+    'labeled': True,
+    'chunk_size': 200,
+    'chunk_overlap': 40,
+    'topk': 15
 }

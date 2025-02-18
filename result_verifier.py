@@ -11,7 +11,11 @@ def save_json(dict, local='resultados'):
     with open(f'data/responses/{local}.json', 'w', encoding='utf-8') as arquivo:
         arquivo.write(json_string)
 
-llm_reviewer = LLMReviewerModel()
+
+def __init__(self):
+    self.llm_reviewer = LLMReviewerModel()
+
+
 
 for key, value in resultados.items():
     #print(value['respostas'])

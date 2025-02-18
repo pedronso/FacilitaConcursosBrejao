@@ -2,11 +2,12 @@ import os
 import time
 import pandas as pd
 from pipelines.scraper import fetch_edital_links
-from pipelines.extractor import processar_downloads_e_extração
+from pipelines.extractor import processar_downloads_e_extração, chunking_texto
 from models.embeddings_model import EmbeddingModel
 from vectorstore.faiss_store import FAISSVectorStore
 from pipelines.rag import RAGPipeline
 from reports.metrics import avaliar_sistema
+from experiments.results_saver import save_results
 import subprocess
 import sys
 import json
@@ -29,9 +30,32 @@ def etapa_1_scraper():
 def etapa_2_extracao():
     """Extrai texto dos PDFs e divide em chunks."""
     print("\n📄 [2/6] Extraindo textos dos PDFs...")
-    resultados = processar_downloads_e_extração(CSV_EDITAIS, "data/raw/")
-    df_resultados = pd.DataFrame(resultados)
+    #resultados = processar_downloads_e_extração(CSV_EDITAIS, "data/raw/")
+    #resultados = chunking_texto("data/raw/text.txt")
+    files = [
+        "data/raw/ibge.txt",
+    ]
+    files = [
+        "data/raw/ibge.txt",
+        "data/extracted_pedro/cnen.txt",
+        "data/extracted_pedro/CCEB- Censo Cidades Estudantil Brasil.txt",
+        "data/extracted_pedro/aeronautica.txt",
+        "data/extracted_pedro/AEB-agencia-espacial-brasileira.txt",
+        "data/extracted_pedro/ibama.txt",
+    ]
+
+    all_chunks = []
+    for file in files:
+        chunks = chunking_texto(file)
+        all_chunks.extend(chunks)  # Add chunks from each file to the list
+
+    # Create DataFrame with one chunk per row
+    df_resultados = pd.DataFrame({"Chunk": all_chunks})
     df_resultados.to_csv(CSV_CHUNKS, index=False)
+
+    #df_resultados = pd.DataFrame(resultados)
+    # df_resultados.to_csv(CSV_CHUNKS, index=False)
+    # df_resultados = pd.DataFrame({"Chunk": [texto_unico]})
     print(f"✅ Textos extraídos e salvos em: {CSV_CHUNKS}")
 
 def verificar_existencia_arquivo(caminho):
@@ -66,8 +90,15 @@ def etapa_3_embeddings():
             return
     """
 
+    #print(df_original.head())  # Ver o início do DataFrame
+    #print(df_original.shape)   # Ver o número de linhas e colunas
+    #print(df_original.columns) # Ver os nomes das colunas
+
+    #df_chunks = df_original.melt(var_name="Chunk_Index", value_name="Chunk").dropna().reset_index(drop=True)
     df_original = pd.read_csv(CSV_CHUNKS)
-    df_chunks = df_original.melt(var_name="Chunk_Index", value_name="Chunk").dropna().reset_index(drop=True)
+    df_chunks = df_original.dropna().reset_index(drop=True)
+
+    chunks = df_original['Chunk'].dropna().tolist()
 
     print(df_chunks.columns)
     print(df_chunks.head())
@@ -75,7 +106,7 @@ def etapa_3_embeddings():
     store = FAISSVectorStore()
     #texts = [" ".join(map(str, row.dropna())) for _, row in df_chunks.iterrows()]
     #store.create_index([" ".join(chunk) if isinstance(chunk, list) else chunk for chunk in df_chunks["Chunks"]])
-    store.create_index(df_chunks['Chunk'].to_list())
+    store.create_index(chunks)
 
 
     print(f"✅ FAISS index salvo em: {INDEX_FAISS}")
@@ -94,40 +125,36 @@ def etapa_4_testar_rag( ):
         "O MPU está com concursos abertos?"
     ]
     """
+    """
     concursos = [
-        "da aeronáutica",
-        "da PPSA",
-        "do Ibama",
-        "da Marinha",
-        "do MPU",
-        "da AEB",
-        "da CNEN",
-        "da EBSERH",
-        "da FUNAI",
         "do IBGE",
-        "do ICMBio",
-        "do TRF"
     ]
     queries_teste =[
-        "Qual a data da prova para o concurso",
+        "ANEXO I - Quadro de Vagas e Postos de Inscrição do",
+        "Como funciona a classificação e titulação para o concurso",
         "Qual é a data da inscrição para o concurso",
         "Qual é o salário para o concurso",
         "Qual é a quantidade de vagas para o concurso",
-        "Quais são os assuntos da prova do concurso",
         "Qual é a carga horária para os cargos do concurso"
     ]
+    """
 
-    perguntas = []
-    perguntas_repostas_dict = {}
-
+    perguntas_respostas_dict = {}
+    """
     for concurso in concursos:
         for querie in queries_teste:
             pergunta = f'{querie} {concurso}'
 
             perguntas.append(pergunta)
-
+    """
     #print(perguntas)
-
+    perguntas = ["No concurco do ibge Quantas vagas estão sendo oferecidas no total e como elas estão distribuídas entre os municípios?",
+                 "Qual é a carga horária para as funções do concurso do ibge?",
+                 "Qual é a remuneração mensal para as funções de Agente de Pesquisas e Mapeamento e Supervisor de Coleta e Qualidade?",
+                 "Sovre o concurso do ibge Como e onde as inscrições devem ser realizadas?",
+                 "Quais documentos são necessários para a inscrição e quais devem ser apresentados no momento da contratação do ibge?",
+                 "Qual é o cronograma completo do processo seletivo do ibge, desde as inscrições até a divulgação do resultado final?",
+                 "Onde os candidatos podem obter informações adicionais sobre o processo seletivo do ibge?"]
     for pergunta in perguntas:
         try:
             print(f"\n🔹 Pergunta: {pergunta}")
@@ -135,14 +162,13 @@ def etapa_4_testar_rag( ):
             resposta = rag.generate_answer(pergunta)
             print(f"💬 Resposta: {resposta}")
             #print(f"💬 Resposta: {resposta_local}")
-            perguntas_repostas_dict[pergunta] = str(resposta)
-            json_string = json.dumps(perguntas_repostas_dict, indent=4, ensure_ascii=False)
-            save_local = f'{tests_vars.dict_models['ai_model']}-{tests_vars.dict_models['embedding_model'].replace('/', '-')}-{tests_vars.dict_models['chunk_size']}'
-            with open(f'data/responses/{save_local}.json', 'w', encoding='utf-8') as arquivo:
-                arquivo.write(json_string)
-            #sleep(1)
+            perguntas_respostas_dict[pergunta] = str(resposta)
+
+
         except Exception as e:
             print(f"❌ Erro ao gerar resposta para '{pergunta}': {e}")
+    
+    save_results(perguntas_respostas_dict)
 
 def run_script(script_path):
     """Executa um script Python e exibe a saída em tempo real."""
@@ -210,10 +236,10 @@ if __name__ == "__main__":
     #etapa_1_scraper()
     #etapa_2_extracao()
     #etapa_3_embeddings()
-    #etapa_4_testar_rag()
+    etapa_4_testar_rag()
     #etapa_5_experimentos()
     #etapa_6_metricas()
-    etapa_7_avaliar_respostas()
+    #etapa_7_avaliar_respostas()
 
     total_time = time.time() - start_time
     print(f"\n⏳ Tempo total de execução: {total_time:.2f} segundos.")

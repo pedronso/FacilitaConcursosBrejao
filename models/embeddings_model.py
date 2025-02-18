@@ -7,10 +7,13 @@ class EmbeddingModel:
     def __init__(self, model_name=tests_vars.dict_models['embedding_model']):
         """Inicializa o modelo de embeddings do Hugging Face."""
         self.embedding_model = HuggingFaceEmbeddings(model_name=model_name)
+        self.embedding_count = 1
 
     def get_embedding(self, text):
         """Gera embeddings para um determinado texto."""
-        print(f'👍 gerando embeddings...')
+        print()
+        print(f'👍 gerando embeddings... count: {self.embedding_count}')
+        self.embedding_count += 1
         embedded_text = self.embedding_model.embed_query(text)
         #print(a)
         return embedded_text

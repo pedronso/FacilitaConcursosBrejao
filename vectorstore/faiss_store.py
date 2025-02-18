@@ -23,6 +23,9 @@ class FAISSVectorStore:
 
     def create_index(self, texts):
         """Cria um índice FAISS a partir de uma lista de textos."""
+        #print(f'embedding: {self.embedding_model.embedding_model}')
+        #print(texts)
+        print(len(texts))
         embeddings = [self.embedding_model.get_embedding(" ".join(text) if isinstance(text, list) else text) for text in texts]
         embeddings = np.array(embeddings, dtype=np.float32)
 

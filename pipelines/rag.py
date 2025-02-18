@@ -19,7 +19,9 @@ class RAGPipeline:
         self.vector_store.load_index()
         self.llm = LLMModel()
         self.df_original = pd.read_csv("data/processed/results_extraction_chunks.csv")
-        self.df_chunks = self.df_original.melt(var_name="Chunk_Index", value_name="Chunk").dropna().reset_index(drop=True)
+        self.df_chunks = self.df_original.dropna().reset_index(drop=True)
+        #self.df_chunks = self.df_original.melt(var_name="Chunk_Index", value_name="Chunk").dropna().reset_index(drop=True)
+
         self.max_tokens_per_request = max_tokens_per_request
         self.max_chunks = max_chunks
         self.tokens_per_minute_limit = tokens_per_minute_limit
@@ -49,11 +51,12 @@ class RAGPipeline:
     def generate_answer(self, query):
         """Busca os chunks relevantes e gera resposta via LLM em partes para evitar perda de dados."""
         indices = self.vector_store.search(query, k=self.max_chunks)
-        print(self.max_chunks)
+        #print(self.max_chunks)
         indices = [int(i) for i in indices if 0 <= i < len(self.df_chunks)]
         textos_relevantes = " ".join([self.df_chunks.iloc[i]["Chunk"] for i in indices])
 
-        #print(textos_relevantes)
+        # print(textos_relevantes)
+        print(indices)
         # Divide o texto excedente em partes de no máximo `max_tokens_per_request`
         #partes_texto = self.split_text(textos_relevantes, self.max_tokens_per_request)
         

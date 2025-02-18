@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from pdfminer.high_level import extract_text
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter, TokenTextSplitter
 import re
 from tests_vars import dict_models
 
@@ -18,11 +18,12 @@ def limpar_texto(texto):
     texto_limpo = texto_limpo.strip()
     return texto_limpo
 
-def dividir_em_chunks(texto, rotulo, com_rotulo=False, tamanho_maximo=dict_models['chunk_size'], chunk_overlap=dict_models['chunk_overlap']):
+def dividir_em_chunks(texto, rotulo, com_rotulo=True, tamanho_maximo=dict_models['chunk_size'], chunk_overlap=dict_models['chunk_overlap']):
     tamanho_rotulo = len(f'[{rotulo}] ') if com_rotulo else 0
     
     tamanho_ajustado = tamanho_maximo-tamanho_rotulo
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=tamanho_ajustado, chunk_overlap=chunk_overlap)
+
+    text_splitter = TokenTextSplitter(chunk_size=tamanho_maximo, chunk_overlap=chunk_overlap)
     chunks = text_splitter.split_text(texto)
 
     chunks_tratados = [f'[{rotulo}] {chunk}' for chunk in chunks] if com_rotulo else chunks
@@ -75,16 +76,36 @@ def processar_downloads_e_extração(csv_path, pasta_destino):
 
     return resultados
 
+def chunking_texto(file_path):
+    #resultados = []
+    with open(file_path, "r", encoding="utf-8") as arquivo:
+        texto_completo = arquivo.read()
+        chunks = dividir_em_chunks(texto_completo, file_path.split("/")[-1].replace(".txt", ""))
+        #print(chunks)
+        #resultados.append(chunks)
+    
+    return chunks
+
+    return resultados
 
 if __name__ == "__main__":
     csv_path = 'data/processed/editais_concursos.csv'
     pasta_destino = 'data/raw/'
 
-    resultados = processar_downloads_e_extração(csv_path, pasta_destino)
+    # resultados = processar_downloads_e_extração(csv_path, pasta_destino)
+    files = [
+        "data/extracted_pedro/aeronautica.txt",
+        "data/extracted_pedro/ibama.txt",
+        "data/extracted_pedro/agencia.txt",
+        "data/extracted_pedro/CCEB- Censo Cidades Estudantil Brasil.txt",
+        "data/extracted_pedro/cnen.txt",
+        "data/raw/text.txt"
+    ]
+    resultados = [" ".join(chunking_texto(file)) for file in files]
 
     for resultado in resultados:
-        print(f'{resultado}')
         continue
+        print(f'{resultado}')
         print(f"\nTítulo: {resultado['Título']}")
         print(f"Detalhes: {resultado['Detalhes']}")
         print(f"Número de Chunks: {resultado['Número de Chunks']}")
