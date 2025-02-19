@@ -18,16 +18,20 @@ class RAGPipeline:
         self.vector_store = FAISSVectorStore()
         self.vector_store.load_index()
         self.llm = LLMModel()
-        
-        self.df_original = pd.read_csv("data/processed/results_extraction_chunks.csv")
-        self.df_chunks = self.df_original[['Chunk']].dropna().reset_index(drop=True)
-        #self.df_chunks = self.df_original.melt(var_name="Chunk_Index", value_name="Chunk").dropna().reset_index(drop=True)
+
+        csv_path = "data/processed/results_extraction_chunks_updated.csv"
+        self.df_original = pd.read_csv(csv_path)
+
+        if "Concurso" not in self.df_original.columns:
+            raise ValueError("❌ A coluna 'Concurso' não foi encontrada no CSV!")
+
+        self.df_chunks = self.df_original[['Chunk', 'Concurso']].dropna().reset_index(drop=True)
 
         self.max_tokens_per_request = max_tokens_per_request
         self.max_chunks = max_chunks
         self.tokens_per_minute_limit = tokens_per_minute_limit
-        self.tokens_used = 0  # Contador de tokens usados
-        self.start_time = time.time()  # Início da contagem de tempo
+        self.tokens_used = 0
+        self.start_time = time.time()
 
     def reset_token_usage_if_needed(self):
         """Reseta o contador de tokens após 1 minuto."""
@@ -49,7 +53,7 @@ class RAGPipeline:
         num_parts = math.ceil(len(words) / max_length)
         return [" ".join(words[i * max_length:(i + 1) * max_length]) for i in range(num_parts)]
 
-    def generate_answer(self, query):
+    def generate_answer2(self, query):
         """Busca os chunks relevantes e gera resposta via LLM em partes para evitar perda de dados."""
         print(f"🔍 Total de Chunks no CSV: {len(self.df_chunks)}")
         print(f"🔍 Exemplo de Chunk: {self.df_chunks.iloc[0]['Chunk'] if len(self.df_chunks) > 0 else 'Nenhum chunk encontrado'}")
@@ -125,13 +129,63 @@ class RAGPipeline:
 
         #f'{textos_relevantes}\n tamanho:{len(textos_relevantes)}\n indices: {indices}'
         return resposta
+    
+    def detectar_concurso(self, query):
+        """Identifica o concurso mencionado na pergunta do usuário."""
+        concursos_disponiveis = self.df_chunks["Concurso"].unique()
+        for concurso in concursos_disponiveis:
+            if concurso.lower() in query.lower():
+                return concurso
+        return None
+
+    def generate_answer(self, query):
+        """Busca os chunks relevantes e gera resposta via LLM, garantindo que pertencem ao concurso correto."""
+
+        concurso = self.detectar_concurso(query)
+
+        if concurso:
+            print(f"🔍 Concurso identificado: {concurso}. Filtrando por ele...")
+            valid_chunks = self.vector_store.search(query, concurso)
+        else:
+            print("🔍 Nenhum concurso específico identificado. Buscando em todos os concursos...")
+            valid_chunks = self.vector_store.search(query, concurso=None)
+
+        # Se não encontrou chunks relevantes, informa ao usuário e evita chamada desnecessária ao LLM
+        if not valid_chunks or valid_chunks == ["❌ Nenhuma informação específica encontrada para esse concurso."]:
+            return f"❌ Não encontrei informações sobre sua pergunta nos editais disponíveis."
+
+        # Melhorando a recuperação de chunks
+        num_chunks_utilizados = len(valid_chunks)
+        textos_relevantes = "\n\n".join(valid_chunks[:self.max_chunks])  # Garante que não ultrapassamos o limite
+
+        print(f"🔹 Total de Chunks utilizados: {num_chunks_utilizados}")
+        print(f"🔹 Trechos extraídos (parcial):\n{textos_relevantes[:500]}...")  # Mostrando apenas parte do conteúdo para debug
+
+        # Criando o prompt de forma a incentivar a IA a ser objetiva e clara
+        prompt = f"""Baseando-se SOMENTE nos seguintes trechos extraídos de documentos oficiais do concurso {concurso if concurso else 'em geral'}:
+
+    {textos_relevantes}
+
+    Responda à seguinte pergunta de forma objetiva e clara: {query}
+
+    Se os trechos não fornecerem a resposta exata, indique que a informação não foi encontrada no documento e sugira onde o candidato pode obtê-la no edital oficial."""
+
+        try:
+            resposta = self.llm.generate_response(prompt)
+        except Exception as e:
+            return f"❌ Erro ao processar a resposta: {e}"
+
+        return resposta
 
 
-        
+
 
 # Teste
 if __name__ == "__main__":
     rag = RAGPipeline(max_tokens_per_request=2500, max_chunks=5, tokens_per_minute_limit=6000)
-    query = "Concurso do IBAMA"
-    print(rag.generate_full_answer(query))
-    #print(rag.generate_answer(query))
+    
+    query = "Quais são os requisitos para o concurso da FUNAI?"
+    resposta = rag.generate_answer(query)
+    
+    print(f"📝 Resposta gerada:\n{resposta}")
+

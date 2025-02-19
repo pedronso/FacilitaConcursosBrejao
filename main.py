@@ -16,7 +16,8 @@ import tests_vars
 
 BASE_URL = "https://www.pciconcursos.com.br/concursos/nacional/"
 CSV_EDITAIS = "data/processed/editais_concursos.csv"
-CSV_CHUNKS = "data/processed/results_extraction_chunks.csv"
+CSV_CHUNKS = "data/processed/results_extraction_chunks_updated.csv"
+CSV_CHUNKS2 = "data/processed/results_extraction_chunks.csv"
 INDEX_FAISS = "data/embeddings/faiss_index"
 
 def etapa_1_scraper():
@@ -30,36 +31,36 @@ def etapa_1_scraper():
 def etapa_2_extracao():
     """Extrai texto dos PDFs e divide em chunks."""
     print("\n📄 [2/6] Extraindo textos dos PDFs...")
-    #resultados = processar_downloads_e_extração(CSV_EDITAIS, "data/raw/")
-    #resultados = chunking_texto("data/raw/text.txt")
-    files = [
-        "data/raw/ibge.txt",
-    ]
-    files = [
-        "data/raw/ibge.txt",
-        "data/extracted_pedro/cnen.txt",
-        "data/extracted_pedro/CCEB- Censo Cidades Estudantil Brasil.txt",
-        "data/extracted_pedro/aeronautica.txt",
-        "data/extracted_pedro/AEB-agencia-espacial-brasileira.txt",
-        "data/extracted_pedro/ibama.txt",
-        "data/extracted_pedro/edital_funai.txt",
-        "data/extracted_pedro/edital_trf.txt",
-        "data/extracted_pedro/edital_marinha_50pag.txt",
+
+    arquivos = [
+        ("data/raw/ibge.txt", "IBGE"),
+        ("data/extracted_pedro/cnen.txt", "CNEN"),
+        ("data/extracted_pedro/CCEB- Censo Cidades Estudantil Brasil.txt", "CCEB"),
+        ("data/extracted_pedro/aeronautica.txt", "Aeronáutica"),
+        ("data/extracted_pedro/AEB-agencia-espacial-brasileira.txt", "AEB"),
+        ("data/extracted_pedro/ibama.txt", "IBAMA"),
+        ("data/extracted_pedro/edital_funai.txt", "FUNAI"),
+        ("data/extracted_pedro/edital_trf.txt", "TRF"),
+        ("data/extracted_pedro/edital_marinha_50pag.txt", "Marinha"),
     ]
 
     all_chunks = []
-    for file in files:
-        chunks = chunking_texto(file)
-        all_chunks.extend(chunks)  # Add chunks from each file to the list
+    concursos = []
 
-    # Create DataFrame with one chunk per row
-    df_resultados = pd.DataFrame({"Chunk": all_chunks})
+    for file, concurso in arquivos:
+        chunks = chunking_texto(file)
+        all_chunks.extend(chunks)
+        concursos.extend([concurso] * len(chunks))  # Associa cada chunk ao concurso correto
+
+    # Criar DataFrame com "Chunk" e "Concurso"
+    df_resultados = pd.DataFrame({"Chunk": all_chunks, "Concurso": concursos})
+    
+    print("🔍 Verificando colunas antes de salvar:", df_resultados.columns)
+    
     df_resultados.to_csv(CSV_CHUNKS, index=False)
 
-    #df_resultados = pd.DataFrame(resultados)
-    # df_resultados.to_csv(CSV_CHUNKS, index=False)
-    # df_resultados = pd.DataFrame({"Chunk": [texto_unico]})
     print(f"✅ Textos extraídos e salvos em: {CSV_CHUNKS}")
+
 
 def verificar_existencia_arquivo(caminho):
     """Verifica se o arquivo existe antes de tentar utilizá-lo."""
@@ -243,10 +244,10 @@ if __name__ == "__main__":
     start_time = time.time()
 
     #etapa_1_scraper()
-    #etapa_2_extracao()
-    #etapa_3_embeddings()
+    etapa_2_extracao()
+    etapa_3_embeddings()
     etapa_4_testar_rag()
-    #etapa_5_experimentos()
+    etapa_5_experimentos()
     #etapa_6_metricas()
     #etapa_7_avaliar_respostas()
 
