@@ -33,6 +33,7 @@ class FAISSVectorStore:
         concursos = self.df_chunks["Concurso"].dropna().unique()
         concurso_indices = {}
 
+        print("\nconcursos: ", concursos)
         for concurso in concursos:
             indices = self.df_chunks[self.df_chunks["Concurso"] == concurso].index
             if len(indices) > 0:
@@ -69,8 +70,8 @@ class FAISSVectorStore:
         else:
             print("❌ Erro: FAISS index não encontrado! Execute `create_index_from_chunks()` primeiro.")
 
-    def search(self, query, concurso=None, k=30, rerank_top_n=10):
-        """Faz busca no FAISS e aplica re-ranking, garantindo que os chunks pertencem ao concurso correto."""
+    def search(self, query, concurso=None, k=50, rerank_top_n=10):
+        """Faz busca no FAISS, priorizando o concurso específico e ampliando para global se necessário."""
         try:
             query_embedding = np.array([self.embedding_model.get_embedding(query)], dtype=np.float32)
             distances, indices = self.index.search(query_embedding, k)
@@ -78,39 +79,42 @@ class FAISSVectorStore:
             print(f"🔍 FAISS Retornou Índices: {indices}")
             print(f"🔍 FAISS Retornou Distâncias: {distances}")
 
+            filtered_indices = indices[0].tolist()
+            retrieved_texts = []
+
+            # 🔹 Filtro de concurso, se houver um identificado
             if concurso and concurso in self.concurso_indices:
                 min_index, max_index = self.concurso_indices[concurso]
-                indices = [[i for i in indices[0] if min_index <= i <= max_index]]
+                filtered_indices = [i for i in filtered_indices if min_index <= i <= max_index]
 
-            if len(indices[0]) == 0:
-                return []
+            retrieved_texts = [self.df_chunks.iloc[i]["Chunk"] for i in filtered_indices if i < len(self.df_chunks)]
 
-            # Recupera os chunks correspondentes aos índices encontrados e filtra pelo concurso
-            retrieved_texts = [
-                self.df_chunks.iloc[i]["Chunk"] for i in indices[0] if i < len(self.df_chunks)
-            ]
-
+            # 🔹 Se não encontrou nada, buscar globalmente
             if not retrieved_texts:
-                # Fallback: se não encontrou nada no concurso específico, busca sem filtro de concurso
-                print("⚠️ Nenhum chunk encontrado para o concurso. Tentando buscar sem restrição...")
-                retrieved_texts = [self.df_chunks.iloc[i]["Chunk"] for i in indices[0] if i < len(self.df_chunks)]
+                print(f"⚠️ Nenhum chunk encontrado para {concurso}. Tentando busca global...")
+                filtered_indices = indices[0].tolist()
+                retrieved_texts = [self.df_chunks.iloc[i]["Chunk"] for i in filtered_indices if i < len(self.df_chunks)]
 
             if not retrieved_texts:
                 return ["❌ Nenhuma informação específica encontrada para esse concurso."]
 
-            # Re-ranking com Sentence Transformers
-            rerank_scores = util.cos_sim(self.reranker.encode(query, convert_to_tensor=True),
-                                         self.reranker.encode(retrieved_texts, convert_to_tensor=True))
-
+            # 🔹 Melhorando o reranking com modelo mais avançado
+            rerank_scores = util.cos_sim(
+                self.reranker.encode(query, convert_to_tensor=True),
+                self.reranker.encode(retrieved_texts, convert_to_tensor=True)
+            )
             ranked_results = sorted(zip(retrieved_texts, rerank_scores.tolist()), key=lambda x: x[1], reverse=True)
 
-            # Retorna os top N chunks após re-ranking
             best_chunks = [text for text, _ in ranked_results[:rerank_top_n]]
             return best_chunks
+
         except Exception as e:
             print(f"❌ Erro ao buscar no FAISS: {e}")
             traceback.print_exc()
             return []
+
+
+
 
     def print_faiss_status(self):
         if self.index is None:

@@ -140,7 +140,6 @@ class RAGPipeline:
 
     def generate_answer(self, query):
         """Busca os chunks relevantes e gera resposta via LLM, garantindo que pertencem ao concurso correto."""
-
         concurso = self.detectar_concurso(query)
 
         if concurso:
@@ -150,25 +149,22 @@ class RAGPipeline:
             print("🔍 Nenhum concurso específico identificado. Buscando em todos os concursos...")
             valid_chunks = self.vector_store.search(query, concurso=None)
 
-        # Se não encontrou chunks relevantes, informa ao usuário e evita chamada desnecessária ao LLM
         if not valid_chunks or valid_chunks == ["❌ Nenhuma informação específica encontrada para esse concurso."]:
-            return f"❌ Não encontrei informações sobre sua pergunta nos editais disponíveis."
+            return "❌ Não encontrei informações sobre sua pergunta nos editais disponíveis."
 
-        # Melhorando a recuperação de chunks
-        num_chunks_utilizados = len(valid_chunks)
-        textos_relevantes = "\n\n".join(valid_chunks[:self.max_chunks])  # Garante que não ultrapassamos o limite
+        textos_relevantes = "\n\n".join(valid_chunks[:self.max_chunks])
 
-        print(f"🔹 Total de Chunks utilizados: {num_chunks_utilizados}")
-        print(f"🔹 Trechos extraídos (parcial):\n{textos_relevantes[:500]}...")  # Mostrando apenas parte do conteúdo para debug
+        print(f"🔹 Trechos extraídos:\n{textos_relevantes[:500]}...")
 
-        # Criando o prompt de forma a incentivar a IA a ser objetiva e clara
-        prompt = f"""Baseando-se SOMENTE nos seguintes trechos extraídos de documentos oficiais do concurso {concurso if concurso else 'em geral'}:
+        prompt = f"""
+    Baseando-se SOMENTE nos seguintes trechos extraídos de documentos oficiais do concurso {concurso if concurso else 'em geral'}:
 
     {textos_relevantes}
 
     Responda à seguinte pergunta de forma objetiva e clara: {query}
 
-    Se os trechos não fornecerem a resposta exata, indique que a informação não foi encontrada no documento e sugira onde o candidato pode obtê-la no edital oficial."""
+    Se os trechos não fornecerem a resposta exata, indique que a informação não foi encontrada no documento e sugira onde o candidato pode obtê-la no edital oficial.
+    """
 
         try:
             resposta = self.llm.generate_response(prompt)
@@ -179,13 +175,9 @@ class RAGPipeline:
 
 
 
-
 # Teste
 if __name__ == "__main__":
     rag = RAGPipeline(max_tokens_per_request=2500, max_chunks=5, tokens_per_minute_limit=6000)
-    
-    query = "Quais são os requisitos para o concurso da FUNAI?"
-    resposta = rag.generate_answer(query)
-    
-    print(f"📝 Resposta gerada:\n{resposta}")
-
+    query = "Concurso do IBAMA"
+    print(rag.generate_full_answer(query))
+    #print(rag.generate_answer(query))
