@@ -81,39 +81,38 @@ def stage_3_embeddings():
     print(f"✅ FAISS indices saved at: {INDEX_FAISS_DIR}")
 
 def stage_4_test_rag():
-    """Runs a test on the RAG system without regenerating embeddings."""
-    print("\n🤖 [4/6] Running RAG queries...")
+    """Executa testes no sistema RAG usando FAISS corretamente."""
+    print("\n🤖 [4/6] Testando RAG...")
 
-    # ✅ Apenas carregamos FAISS em vez de recriar
     faiss_store = FAISSVectorStore()
     faiss_store.load_indices()
 
-    rag = RAGPipeline()  # RAG usa FAISS normalmente
+    rag = RAGPipeline()
 
     questions = [
-        "Quantas vagas estão disponíveis para o concurso da FUNAI?",
-        "Qual a carga horária para as funções do concurso da FUNAI?",
-        "Qual o salário mensal para a função de Agente de Pesquisa e Mapeamento?",
-        "Como e onde os candidatos devem se inscrever para o concurso da FUNAI?",
-        "Quais os documentos necessários para inscrição e contratação no concurso da FUNAI?",
-        "Qual o cronograma completo do processo seletivo da FUNAI?",
-        "Onde os candidatos podem obter mais informações sobre o concurso da Marinha?"
+        "Quantas vagas estão disponíveis no concurso da FUNAI?",
+        "Me fale sobre o calendário da FUNAI",
+        "Qual a carga horária para os cargos do IBAMA?",
+        "Quais os requisitos para o concurso da Marinha?",
+        "Onde os candidatos devem se inscrever no concurso da Aeronáutica?",
+        "Qual o salário do concurso do IBGE?"
     ]
-    
+
     responses = {}
 
     for question in questions:
         try:
-            print(f"\n🔹 Question: {question}")
-            response = rag.generate_answer(question)  # Apenas busca resposta
-            print(f"💬 Response: {response}")
+            print(f"\n🔹 Pergunta: {question}")
+            response = rag.generate_answer(question)
+            print(f"💬 Resposta: {response}")
             responses[question] = str(response)
 
         except Exception as e:
-            print(f"❌ Error generating response for '{question}': {e}")
+            print(f"❌ Erro ao gerar resposta para '{question}': {e}")
             traceback.print_exc()
 
     save_results(responses)
+
 
 
 def execute_script(script_path):
