@@ -154,13 +154,13 @@ def etapa_4_testar_rag( ):
     """
     #print(perguntas)
     perguntas = [
-                 "Qual é o cronograma completo do processo seletivo do ibge, desde as inscrições até a divulgação do resultado final?",
-                "No concurso do ibge Quantas vagas estão sendo oferecidas no total e como elas estão distribuídas entre os municípios?",
-                 "Qual é a carga horária para as funções do concurso do ibge?",
+                 "Qual é o cronograma completo do processo seletivo do ibama, desde as inscrições até a divulgação do resultado final?",
+                "No concurso do ibama Quantas vagas estão sendo oferecidas no total e como elas estão distribuídas entre os municípios?",
+                 "Qual é a carga horária para as funções do concurso do ibama?",
                  "Qual é a remuneração mensal para as funções de Agente de Pesquisas e Mapeamento e Supervisor de Coleta e Qualidade?",
-                 "Sovre o concurso do ibge Como e onde as inscrições devem ser realizadas?",
-                 "Quais documentos são necessários para a inscrição e quais devem ser apresentados no momento da contratação do ibge?",
-                 "Onde os candidatos podem obter informações adicionais sobre o processo seletivo do ibge?"]
+                 "Sovre o concurso do ibama Como e onde as inscrições devem ser realizadas?",
+                 "Quais documentos são necessários para a inscrição e quais devem ser apresentados no momento da contratação do ibama?",
+                 "Onde os candidatos podem obter informações adicionais sobre o processo seletivo do ibama?"]
     
     for pergunta in perguntas:
         try:
@@ -242,8 +242,8 @@ if __name__ == "__main__":
 
     #etapa_1_scraper()
     #etapa_2_extracao()
-    etapa_3_embeddings()
-    #etapa_4_testar_rag()
+    #etapa_3_embeddings()
+    etapa_4_testar_rag()
     #etapa_5_experimentos()
     #etapa_6_metricas()
     #etapa_7_avaliar_respostas()

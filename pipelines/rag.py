@@ -71,8 +71,25 @@ class RAGPipeline:
             indices = [i for i in indices if 969 < i <= 1396]
 
         elif 'aeb' in query:
-            indices = [i for i in indices if 1396 < i <= 1396]
+            indices = [i for i in indices if 1396 < i <= 1787]
 
+        elif 'ibama' in query:
+            indices = [i for i in indices if 1787 < i <= 2272]
+
+        elif 'funai' in query:
+            indices = [i for i in indices if 2272 < i <= 2579]
+
+        elif 'funai' in query:
+            indices = [i for i in indices if 2272 < i <= 2579]
+            
+        elif 'trf' in query:
+            indices = [i for i in indices if 2579 < i <= 3075]
+            
+        elif 'marinha' in query:
+            indices = [i for i in indices if 3075 < i <= 3522]
+        
+        #TODO: else: resumo global dos editais, com perguntas/respostas gerais a serem encontradas
+            
         indices = indices[:self.max_chunks]
         
         textos_relevantes = " ".join([self.df_chunks.iloc[i]["Chunk"] for i in indices])
