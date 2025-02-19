@@ -1,29 +1,34 @@
 import time
 import math
+import traceback
+import pandas as pd
+from rank_bm25 import BM25Okapi  # Reranking using BM25
 from vectorstore.faiss_store import FAISSVectorStore
 from models.llm_model import LLMModel
 from models.llm_model import LocalLLMModel
-import pandas as pd
 import tests_vars
 
 class RAGPipeline:
     def __init__(self, max_tokens_per_request=2500, max_chunks=tests_vars.dict_models["topk"], tokens_per_minute_limit=6000):
         """
-        Inicializa a pipeline RAG.
-        - max_tokens_per_request: número máximo de tokens enviados para o LLM por requisição.
-        - max_chunks: número máximo de chunks recuperados do FAISS.
-        - tokens_per_minute_limit: limite de tokens por minuto imposto pela API.
+        Initializes the RAG (Retrieval-Augmented Generation) pipeline with reranking.
+        
+        Args:
+        - max_tokens_per_request (int): Maximum tokens allowed per LLM request.
+        - max_chunks (int): Maximum number of retrieved chunks from FAISS.
+        - tokens_per_minute_limit (int): Rate limit for API token usage.
         """
         self.local_model = LocalLLMModel()
         self.vector_store = FAISSVectorStore()
-        self.vector_store.load_index()
+        self.vector_store.load_indices()
         self.llm = LLMModel()
 
+        # Load processed chunks
         csv_path = "data/processed/results_extraction_chunks_updated.csv"
         self.df_original = pd.read_csv(csv_path)
 
         if "Concurso" not in self.df_original.columns:
-            raise ValueError("❌ A coluna 'Concurso' não foi encontrada no CSV!")
+            raise ValueError("❌ Error: 'Concurso' column not found in CSV!")
 
         self.df_chunks = self.df_original[['Chunk', 'Concurso']].dropna().reset_index(drop=True)
 
@@ -34,150 +39,149 @@ class RAGPipeline:
         self.start_time = time.time()
 
     def reset_token_usage_if_needed(self):
-        """Reseta o contador de tokens após 1 minuto."""
+        """Resets the token usage counter every minute."""
         if time.time() - self.start_time >= 60:
-            print("⏳ Resetando o contador de tokens...")
+            print("⏳ Resetting token counter...")
             self.tokens_used = 0
             self.start_time = time.time()
 
     def wait_if_needed(self):
-        """Aguarda se a quantidade de tokens usados excedeu o limite por minuto."""
+        """Pauses execution if the API token usage exceeds the limit per minute."""
         while self.tokens_used >= self.tokens_per_minute_limit:
-            print(f"🚨 Limite de tokens atingido ({self.tokens_used}/{self.tokens_per_minute_limit}). Aguardando 30s...")
+            print(f"🚨 Token limit reached ({self.tokens_used}/{self.tokens_per_minute_limit}). Waiting 30s...")
             time.sleep(30)
             self.reset_token_usage_if_needed()
 
-    def split_text(self, text, max_length):
-        """Divide um texto em partes que não excedam `max_length` tokens."""
-        words = text.split()
-        num_parts = math.ceil(len(words) / max_length)
-        return [" ".join(words[i * max_length:(i + 1) * max_length]) for i in range(num_parts)]
-
-    def generate_answer2(self, query):
-        """Busca os chunks relevantes e gera resposta via LLM em partes para evitar perda de dados."""
-        print(f"🔍 Total de Chunks no CSV: {len(self.df_chunks)}")
-        print(f"🔍 Exemplo de Chunk: {self.df_chunks.iloc[0]['Chunk'] if len(self.df_chunks) > 0 else 'Nenhum chunk encontrado'}")
-        
-        indices = self.vector_store.search(query, k=self.max_chunks)
-        indices = indices[0]  # Garantindo que pegamos apenas a lista interna
-
-        # Verifica se os índices são válidos antes de acessar
-        valid_indices = [int(i) for i in indices if isinstance(i, (int, float)) and 0 <= i < len(self.df_chunks)]
-
-        # Exibir quais chunks estão sendo utilizados
-        print(f"🔍 Chunks recuperados: {valid_indices}")
-
-        # Extração dos chunks correspondentes
-        textos_relevantes = "\n\n".join(self.df_chunks.iloc[i]["Chunk"] for i in valid_indices)
-
-        print(f"📝 Textos extraídos para resposta:\n{textos_relevantes[:500]}")  # Mostra parte do conteúdo extraído
-        prompt = f"Baseando-se SOMENTE nos seguintes trechos extraídos de documentos oficiais:\n\n{textos_relevantes}\n\nResponda a pergunta da forma mais objetiva possível: {query}"
-
-        try:
-            resposta = self.llm.generate_response(prompt)
-        except Exception as e:
-            import traceback
-            print(f"❌ Erro ao gerar resposta para '{query}': {e}")
-            traceback.print_exc()
-            return "❌ Erro ao processar a resposta."
-
-        return resposta
-    
-    def generate_full_answer(self, query):
+    def detect_contest(self, query):
         """
-        print("pegando indices...")
-        indices = self.vector_store.search(query, k=self.max_chunks)
-        indices = [int(i) for i in indices if 0 <= i < len(self.df_chunks)]
-        print(f'pegado {indices}')
+        Automatically detects if a contest is mentioned in the query.
 
-        textos_relevantes = " ".join([self.df_chunks.iloc[i]["Chunk"] for i in indices])
+        Args:
+        - query (str): The user's question.
+
+        Returns:
+        - str: Contest name if detected, otherwise None.
         """
-        
-        print(f"🔍 Total de Chunks no CSV: {len(self.df_chunks)}")
-        print(f"🔍 Exemplo de Chunk: {self.df_chunks.iloc[0]['Chunk'] if len(self.df_chunks) > 0 else 'Nenhum chunk encontrado'}")
-        
-        indices = self.vector_store.search(query, k=self.max_chunks)
-        indices = [int(i) for i in indices[0] if isinstance(i, (int, float)) and 0 <= i < len(self.df_chunks)]
-
-        if not indices:
-            return "❌ Nenhum chunk relevante encontrado."
-
-        for idx in indices:
-            print(f"🔹 Chunk {idx}: {self.df_chunks.iloc[idx]['Chunk']}")
-
-
-        textos_relevantes = " ".join([self.df_chunks.iloc[i]["Chunk"] for i in indices])
-        print(f"🔹 Chunks recuperados: {textos_relevantes}")
-        """
-        textos_relevantes = " ".join([
-            " ".join(map(str, self.df_chunks.iloc[i].dropna())) for i in indices
-        ])
-        """
-
-        #print(f"Gerando resposta com texto inteiro...{textos_relevantes}")
-
-        #prompt = f"Baseando-se somente nos seguintes textos:\n{textos_relevantes}\n\n responda: {query}"
-        prompt = f"Baseando-se SOMENTE nos seguintes trechos retirados de documentos oficiais:\n\n{textos_relevantes}\n\nResponda da forma mais objetiva possível à seguinte pergunta: {query}"
-
-        #prompt = f"Me diga o que tem nos seguintes textos separando cada um:\n{textos_relevantes}"
-        #prompt2 = f"resuma os seguintes textos em até 50 palavras cada:\n{textos_relevantes}"
-
-
-        resposta = self.local_model.generate_response(prompt=prompt)
-        #resumo
-        #self.local_model.generate_response(prompt=prompt2)
-
-        #f'{textos_relevantes}\n tamanho:{len(textos_relevantes)}\n indices: {indices}'
-        return resposta
-    
-    def detectar_concurso(self, query):
-        """Identifica o concurso mencionado na pergunta do usuário."""
-        concursos_disponiveis = self.df_chunks["Concurso"].unique()
-        for concurso in concursos_disponiveis:
-            if concurso.lower() in query.lower():
-                return concurso
+        available_contests = self.df_chunks["Concurso"].unique()
+        for contest in available_contests:
+            if contest.lower() in query.lower():
+                return contest
         return None
 
+    def rerank_chunks(self, query, retrieved_chunks):
+        """
+        Uses BM25 to rerank the retrieved FAISS chunks.
+
+        Args:
+        - query (str): The user's question.
+        - retrieved_chunks (list of str): Retrieved chunks from FAISS.
+
+        Returns:
+        - list of str: Reranked chunks.
+        """
+        if not retrieved_chunks:
+            return []
+
+        tokenized_chunks = [chunk.split() for chunk in retrieved_chunks]
+        bm25 = BM25Okapi(tokenized_chunks)
+
+        scores = bm25.get_scores(query.split())
+        ranked_chunks = [retrieved_chunks[i] for i in sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)]
+
+        print(f"🔹 Top reranked chunks:\n{ranked_chunks[:3]}")  # Show top 3 chunks for debugging
+        return ranked_chunks[:self.max_chunks]
+
     def generate_answer(self, query):
-        """Busca os chunks relevantes e gera resposta via LLM, garantindo que pertencem ao concurso correto."""
-        concurso = self.detectar_concurso(query)
+        """
+        Retrieves relevant chunks using FAISS, reranks them, and generates an answer via LLM.
 
-        if concurso:
-            print(f"🔍 Concurso identificado: {concurso}. Filtrando por ele...")
-            valid_chunks = self.vector_store.search(query, concurso)
+        Args:
+        - query (str): The user's question.
+
+        Returns:
+        - str: The generated response.
+        """
+        contest = self.detect_contest(query)
+
+        if contest:
+            print(f"🔍 Contest detected: {contest}. Searching in the corresponding index...")
+            retrieved_chunks = self.vector_store.search(query, contest)
         else:
-            print("🔍 Nenhum concurso específico identificado. Buscando em todos os concursos...")
-            valid_chunks = self.vector_store.search(query, concurso=None)
+            print("🔍 No specific contest detected. Searching globally...")
+            retrieved_chunks = self.vector_store.search(query, contest=None)
 
-        if not valid_chunks or valid_chunks == ["❌ Nenhuma informação específica encontrada para esse concurso."]:
-            return "❌ Não encontrei informações sobre sua pergunta nos editais disponíveis."
+        # If no relevant chunks are found, return a fallback message
+        if not retrieved_chunks or retrieved_chunks == ["❌ No relevant information found for this contest."]:
+            return "❌ No relevant information found in the available contest documents."
 
-        textos_relevantes = "\n\n".join(valid_chunks[:self.max_chunks])
+        # Rerank retrieved chunks
+        ranked_chunks = self.rerank_chunks(query, retrieved_chunks)
 
-        print(f"🔹 Trechos extraídos:\n{textos_relevantes[:500]}...")
+        # Prepare retrieved text snippets for LLM processing
+        relevant_texts = "\n\n".join(ranked_chunks)
+        print(f"🔹 Extracted & Reranked Snippets:\n{relevant_texts[:500]}...")
 
+        # Construct prompt for LLM
         prompt = f"""
-    Baseando-se SOMENTE nos seguintes trechos extraídos de documentos oficiais do concurso {concurso if concurso else 'em geral'}:
+        Based ONLY on the following excerpts from official contest documents {f'for {contest}' if contest else 'in general'}:
 
-    {textos_relevantes}
+        {relevant_texts}
 
-    Responda à seguinte pergunta de forma objetiva e clara: {query}
+        Answer the following question as clearly and concisely as possible: {query}
 
-    Se os trechos não fornecerem a resposta exata, indique que a informação não foi encontrada no documento e sugira onde o candidato pode obtê-la no edital oficial.
-    """
+        If the provided excerpts do not contain the exact answer, indicate that the information was not found in the document
+        and suggest checking the official contest notice for further details.
+        """
 
         try:
-            resposta = self.llm.generate_response(prompt)
+            response = self.llm.generate_response(prompt)
         except Exception as e:
-            return f"❌ Erro ao processar a resposta: {e}"
+            print(f"❌ Error generating response: {e}")
+            traceback.print_exc()
+            response = "⚠️ Unable to generate a valid response due to a connection error."
 
-        return resposta
+        return response if response else "⚠️ No response generated. Please try again later."
 
+    def generate_full_answer(self, query):
+        """
+        Retrieves the most relevant chunks, reranks them, and generates a detailed response.
 
+        Args:
+        - query (str): The user's question.
 
-# Teste
+        Returns:
+        - str: The generated response.
+        """
+        contest = self.detect_contest(query)
+        if contest:
+            print(f"🔍 Searching for contest: {contest}...")
+            retrieved_chunks = self.vector_store.search(query, contest)
+        else:
+            print("🔍 No contest detected. Searching globally...")
+            retrieved_chunks = self.vector_store.search(query, contest=None)
+
+        if not retrieved_chunks:
+            return "❌ No relevant information found."
+
+        # Rerank retrieved chunks
+        ranked_chunks = self.rerank_chunks(query, retrieved_chunks)
+
+        relevant_texts = " ".join(ranked_chunks)
+        print(f"🔹 Extracted & Reranked Chunks:\n{relevant_texts[:500]}")
+
+        prompt = f"""
+        Based ONLY on the following excerpts from official documents:
+
+        {relevant_texts}
+
+        Provide a clear and precise answer to the question: {query}
+        """
+
+        response = self.local_model.generate_response(prompt)
+        return response
+
+# Test script
 if __name__ == "__main__":
-    rag = RAGPipeline(max_tokens_per_request=2500, max_chunks=5, tokens_per_minute_limit=6000)
-    query = "Concurso do IBAMA"
-    print(rag.generate_full_answer(query))
-    #print(rag.generate_answer(query))
+    rag = RAGPipeline(max_tokens_per_request=2500, max_chunks=15, tokens_per_minute_limit=6000)
+    test_query = "How many vacancies are available in the IBAMA contest?"
+    print(rag.generate_full_answer(test_query))

@@ -17,25 +17,23 @@ import tests_vars
 BASE_URL = "https://www.pciconcursos.com.br/concursos/nacional/"
 CSV_EDITAIS = "data/processed/editais_concursos.csv"
 CSV_CHUNKS = "data/processed/results_extraction_chunks_updated.csv"
-CSV_CHUNKS2 = "data/processed/results_extraction_chunks.csv"
-INDEX_FAISS = "data/embeddings/faiss_index"
+INDEX_FAISS_DIR = "data/embeddings/"
 
-def etapa_1_scraper():
-    """Baixa os PDFs dos editais e salva no CSV."""
-    print("\n🔍 [1/6] Coletando editais...")
+def stage_1_scraper():
+    """Scrapes contest notices (editais) and saves them as CSV."""
+    print("\n🔍 [1/6] Collecting contest notices...")
     editais_info = fetch_edital_links(BASE_URL, "data/raw/")
     df_editais = pd.DataFrame(editais_info)
     df_editais.to_csv(CSV_EDITAIS, index=False)
-    print(f"✅ Editais salvos em: {CSV_EDITAIS}")
+    print(f"✅ Notices saved at: {CSV_EDITAIS}")
 
-def etapa_2_extracao():
-    """Extrai texto dos PDFs e divide em chunks."""
-    print("\n📄 [2/6] Extraindo textos dos PDFs...")
+def stage_2_extraction():
+    """Extracts text from PDFs and splits them into chunks."""
+    print("\n📄 [2/6] Extracting text from PDFs...")
 
-    arquivos = [
+    files = [
         ("data/raw/ibge.txt", "IBGE"),
         ("data/extracted_pedro/cnen.txt", "CNEN"),
-        ("data/extracted_pedro/CCEB- Censo Cidades Estudantil Brasil.txt", "CCEB"),
         ("data/extracted_pedro/aeronautica.txt", "Aeronáutica"),
         ("data/extracted_pedro/AEB-agencia-espacial-brasileira.txt", "AEB"),
         ("data/extracted_pedro/ibama.txt", "IBAMA"),
@@ -45,214 +43,147 @@ def etapa_2_extracao():
     ]
 
     all_chunks = []
-    concursos = []
+    contests = []
 
-    for file, concurso in arquivos:
+    for file, contest in files:
         chunks = chunking_texto(file)
         all_chunks.extend(chunks)
-        concursos.extend([concurso] * len(chunks))  # Associa cada chunk ao concurso correto
+        contests.extend([contest] * len(chunks))  # Associate each chunk with the correct contest
 
-    # Criar DataFrame com "Chunk" e "Concurso"
-    df_resultados = pd.DataFrame({"Chunk": all_chunks, "Concurso": concursos})
+    df_results = pd.DataFrame({"Chunk": all_chunks, "Concurso": contests})
     
-    print("🔍 Verificando colunas antes de salvar:", df_resultados.columns)
+    print("🔍 Verifying columns before saving:", df_results.columns)
     
-    df_resultados.to_csv(CSV_CHUNKS, index=False)
+    df_results.to_csv(CSV_CHUNKS, index=False)
+    print(f"✅ Extracted texts saved at: {CSV_CHUNKS}")
 
-    print(f"✅ Textos extraídos e salvos em: {CSV_CHUNKS}")
-
-
-def verificar_existencia_arquivo(caminho):
-    """Verifica se o arquivo existe antes de tentar utilizá-lo."""
-    if not os.path.exists(caminho):
-        print(f"❌ Arquivo não encontrado: {caminho}")
+def file_exists(path):
+    """Checks if a file exists before using it."""
+    if not os.path.exists(path):
+        print(f"❌ File not found: {path}")
         return False
     return True
 
-def etapa_3_embeddings():
-    """Gera embeddings e cria o banco FAISS."""
-    print("\n🧠 [3/6] Criando embeddings e index FAISS...")
+def stage_3_embeddings():
+    """Generates embeddings and creates FAISS indices per contest."""
+    print("\n🧠 [3/6] Creating embeddings and FAISS indices...")
 
-    if not verificar_existencia_arquivo(CSV_CHUNKS):
-        print("⚠️ Pulando etapa de embeddings pois os chunks não foram extraídos.")
+    if not file_exists(CSV_CHUNKS):
+        print("⚠️ Skipping embeddings stage as the text chunks were not extracted.")
         return
 
+    df_chunks = pd.read_csv(CSV_CHUNKS).dropna().reset_index(drop=True)
 
-    """
-    if "Chunk" not in df_chunks.columns:
-        print("⚠️ A coluna 'Chunks' não foi encontrada no CSV. Verifique os dados processados.")
-        return
-    """
-
-    # Verifica se a coluna 'Chunks' é string e converte para lista se necessário
-    """
-    if isinstance(df_chunks["Chunk"].iloc[0], str):
-        try:
-            df_chunks["Chunk"] = df_chunks["Chunk"].apply(eval)
-        except:
-            print("⚠️ Erro ao converter 'Chunks' para lista.")
-            return
-    """
-
-    #print(df_original.head())  # Ver o início do DataFrame
-    #print(df_original.shape)   # Ver o número de linhas e colunas
-    #print(df_original.columns) # Ver os nomes das colunas
-
-    #df_chunks = df_original.melt(var_name="Chunk_Index", value_name="Chunk").dropna().reset_index(drop=True)
-    df_original = pd.read_csv(CSV_CHUNKS)
-    df_chunks = df_original.dropna().reset_index(drop=True)
-
-    chunks = df_original['Chunk'].dropna().tolist()
-
-    print(df_chunks.columns)
-    print(df_chunks.head())
-    
     store = FAISSVectorStore()
-    #texts = [" ".join(map(str, row.dropna())) for _, row in df_chunks.iterrows()]
-    #store.create_index([" ".join(chunk) if isinstance(chunk, list) else chunk for chunk in df_chunks["Chunk"]])
-    store.create_index(chunks)
+    store.create_indices()
     store.print_faiss_status()
 
+    print(f"✅ FAISS indices saved at: {INDEX_FAISS_DIR}")
 
-    print(f"✅ FAISS index salvo em: {INDEX_FAISS}")
+def stage_4_test_rag():
+    """Runs a test on the RAG system without regenerating embeddings."""
+    print("\n🤖 [4/6] Running RAG queries...")
 
-def etapa_4_testar_rag( ):
-    """Executa um teste no chatbot RAG."""
-    print("\n🤖 [4/6] Testando consultas ao sistema RAG...")
+    # ✅ Apenas carregamos FAISS em vez de recriar
+    faiss_store = FAISSVectorStore()
+    faiss_store.load_indices()
+
+    rag = RAGPipeline()  # RAG usa FAISS normalmente
+
+    questions = [
+        "Quantas vagas estão disponíveis para o concurso da FUNAI?",
+        "Qual a carga horária para as funções do concurso da FUNAI?",
+        "Qual o salário mensal para a função de Agente de Pesquisa e Mapeamento?",
+        "Como e onde os candidatos devem se inscrever para o concurso da FUNAI?",
+        "Quais os documentos necessários para inscrição e contratação no concurso da FUNAI?",
+        "Qual o cronograma completo do processo seletivo da FUNAI?",
+        "Onde os candidatos podem obter mais informações sobre o concurso da Marinha?"
+    ]
     
-    rag = RAGPipeline()
-    """
-    queries_teste = [
-        "Quais são os prazos de inscrição do concurso da marinha?",
-        "Quais são os concursos para engenheiros?",
-        "Tem algum concurso para nível médio?",
-        "Quantas vagas estão abertas para o IBAMA?",
-        "O MPU está com concursos abertos?"
-    ]
-    """
-    """
-    concursos = [
-        "do IBGE",
-    ]
-    queries_teste =[
-        "ANEXO I - Quadro de Vagas e Postos de Inscrição do",
-        "Como funciona a classificação e titulação para o concurso",
-        "Qual é a data da inscrição para o concurso",
-        "Qual é o salário para o concurso",
-        "Qual é a quantidade de vagas para o concurso",
-        "Qual é a carga horária para os cargos do concurso"
-    ]
-    """
+    responses = {}
 
-    perguntas_respostas_dict = {}
-    """
-    for concurso in concursos:
-        for querie in queries_teste:
-            pergunta = f'{querie} {concurso}'
-
-            perguntas.append(pergunta)
-    """ 
-    
-
-
-    #print(perguntas)
-    perguntas = ["No concurco da funai Quantas vagas estão sendo oferecidas no total e como elas estão distribuídas entre os municípios?",
-                 "Qual é a carga horária para as funções do concurso da funai?",
-                 "Qual é a remuneração mensal para as funções de Agente de Pesquisas e Mapeamento e Supervisor de Coleta e Qualidade?",
-                 "Sobre o concurso da funai Como e onde as inscrições devem ser realizadas?",
-                 "Quais documentos são necessários para a inscrição e quais devem ser apresentados no momento da contratação da funai?",
-                 "Qual é o cronograma completo do processo seletivo da funai, desde as inscrições até a divulgação do resultado final?",
-                 "Onde os candidatos podem obter informações adicionais sobre o processo seletivo da funai?"]
-    for pergunta in perguntas:
+    for question in questions:
         try:
-            print(f"\n🔹 Pergunta: {pergunta}")
-            #resposta_local = rag.generate_full_answer(query)
-            resposta = rag.generate_answer(pergunta)
-            print(f"💬 Resposta: {resposta}")
-            #print(f"💬 Resposta: {resposta_local}")
-            perguntas_respostas_dict[pergunta] = str(resposta)
-
+            print(f"\n🔹 Question: {question}")
+            response = rag.generate_answer(question)  # Apenas busca resposta
+            print(f"💬 Response: {response}")
+            responses[question] = str(response)
 
         except Exception as e:
-            print(f"❌ Erro ao gerar resposta para '{pergunta}': {e}")
-            print("⚠️ Stack Trace:")
-            traceback.print_exc()  # Exibe erro completo
-    
-    save_results(perguntas_respostas_dict)
+            print(f"❌ Error generating response for '{question}': {e}")
+            traceback.print_exc()
 
-def run_script(script_path):
-    """Executa um script Python e exibe a saída em tempo real."""
+    save_results(responses)
+
+
+def execute_script(script_path):
+    """Runs a Python script and displays real-time output."""
     if not os.path.exists(script_path):
-        print(f"⚠️ Arquivo não encontrado: {script_path}")
+        print(f"⚠️ File not found: {script_path}")
         return
 
-    print(f"▶️ Executando: {script_path} ...")
+    print(f"▶️ Running: {script_path} ...")
 
     try:
         process = subprocess.Popen(["python", script_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         for line in iter(process.stdout.readline, ''):
-            print(line, end="")  # Exibe a saída do script em tempo real
+            print(line, end="")  # Display script output in real-time
         process.stdout.close()
         return_code = process.wait()
         if return_code != 0:
-            print(f"⚠️ Erro ao executar {script_path}. Código de retorno: {return_code}")
+            print(f"⚠️ Error executing {script_path}. Return code: {return_code}")
     except Exception as e:
-        print(f"❌ Erro ao rodar {script_path}: {e}")
+        print(f"❌ Error running {script_path}: {e}")
 
-def etapa_5_experimentos():
-    """Executa os experimentos de embeddings, chunking e LLMs."""
-    print("\n📊 [5/6] Executando experimentos...\n")
+def stage_5_experiments():
+    """Runs experiments on embeddings, chunking, and LLMs."""
+    print("\n📊 [5/6] Running experiments...\n")
 
-    scripts_experimentos = [
+    experiment_scripts = [
         "experiments/embeddings_experiment.py",
         "experiments/chunking_experiment.py",
         "experiments/llm_experiment.py"
     ]
 
-    for script in scripts_experimentos:
-        run_script(script)
+    for script in experiment_scripts:
+        execute_script(script)
 
-    print("\n✅ Experimentos concluídos!")
+    print("\n✅ Experiments completed!")
 
-def etapa_6_metricas():
-    """Avalia desempenho do sistema e salva métricas."""
-    print("\n📈 [6/6] Avaliando desempenho do chatbot...\n")
+def stage_6_metrics():
+    """Evaluates chatbot performance and saves metrics."""
+    print("\n📈 [6/6] Evaluating chatbot performance...\n")
     
     start_time = time.time()
     
     try:
         avaliar_sistema()
-        print("✅ Avaliação concluída! Veja os resultados em 'reports/metricas.csv'")
+        print("✅ Evaluation completed! Check results at 'reports/metricas.csv'")
     except Exception as e:
-        print(f"❌ Erro ao avaliar métricas: {e}")
+        print(f"❌ Error evaluating metrics: {e}")
     
     total_time = time.time() - start_time
-    print(f"\n⏳ Tempo total da avaliação: {total_time:.2f} segundos.")
+    print(f"\n⏳ Total evaluation time: {total_time:.2f} seconds.")
 
-
-def etapa_7_avaliar_respostas():
-
-    pass
-
-
-def iniciar_interface():
-    """Executa a interface Streamlit."""
-    print("\n🚀 Iniciando interface web...")
+def start_ui():
+    """Starts the Streamlit web interface."""
+    print("\n🚀 Starting web interface...")
     os.system("streamlit run ui/app.py")
 
 if __name__ == "__main__":
     start_time = time.time()
 
-    #etapa_1_scraper()
-    etapa_2_extracao()
-    etapa_3_embeddings()
-    etapa_4_testar_rag()
-    etapa_5_experimentos()
-    #etapa_6_metricas()
-    #etapa_7_avaliar_respostas()
+    # Run the pipeline steps
+    
+    # stage_1_scraper()
+    #stage_2_extraction()
+    #stage_3_embeddings()
+    stage_4_test_rag()
+    #stage_5_experiments()
+    # stage_6_metrics()
 
     total_time = time.time() - start_time
-    print(f"\n⏳ Tempo total de execução: {total_time:.2f} segundos.")
+    print(f"\n⏳ Total execution time: {total_time:.2f} seconds.")
 
     if "--ui" in sys.argv:
-        iniciar_interface()
+        start_ui()

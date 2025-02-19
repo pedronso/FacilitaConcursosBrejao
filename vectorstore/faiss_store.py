@@ -7,127 +7,177 @@ from models.embeddings_model import EmbeddingModel
 from sentence_transformers import SentenceTransformer, util
 
 class FAISSVectorStore:
-    def __init__(self, index_path="data/embeddings/faiss_index", reranker_model="sentence-transformers/msmarco-distilbert-base-v4"):
-        self.index_path = index_path
+    def __init__(self, base_path="data/embeddings/"):
+        """
+        Initializes a FAISS vector store with per-contest indices and a global fallback.
+        If indices exist, they are loaded. If not, they are created.
+        """
+        self.base_path = base_path
         self.embedding_model = EmbeddingModel()
-        self.reranker = SentenceTransformer(reranker_model)
-        self.index = None
+        self.reranker = SentenceTransformer("sentence-transformers/msmarco-distilbert-base-v4")
+        self.indices = {}
+        self.concurso_indices = {}  # ✅ Now initialized properly
+        self.df_chunks = None
 
-        # Carregar os chunks processados
+        # Load processed chunks
         csv_path = "data/processed/results_extraction_chunks_updated.csv"
         if os.path.exists(csv_path):
             self.df_chunks = pd.read_csv(csv_path)
         else:
-            raise FileNotFoundError(f"❌ Erro: Arquivo CSV {csv_path} não encontrado!")
+            raise FileNotFoundError(f"❌ Error: CSV file {csv_path} not found!")
 
-        # Criar um DataFrame com os intervalos de índices por concurso
-        self.concurso_indices = self._calcular_indices_concursos()
+        # ✅ Now we check if indices exist before deciding to create or load them
+        if self._indices_exist():
+            self.load_indices()
+        else:
+            print("⚠️ No FAISS indices found, creating them now...")
+            self.create_indices()
 
-        # Se o índice FAISS não existir, cria um novo
-        if not os.path.exists(self.index_path):
-            print("⚠️ FAISS index não encontrado! Criando novo...")
-            self.create_index_from_chunks()
+    def _indices_exist(self):
+        """Checks if FAISS indices already exist."""
+        contests = self.df_chunks["Concurso"].dropna().unique()
+        for contest in contests:
+            index_path = os.path.join(self.base_path, f"faiss_index_{contest.lower()}")
+            if not os.path.exists(index_path):
+                return False
 
-    def _calcular_indices_concursos(self):
-        """Cria um dicionário com os intervalos de índices de cada concurso."""
-        concursos = self.df_chunks["Concurso"].dropna().unique()
-        concurso_indices = {}
+        # Check global index
+        global_index_path = os.path.join(self.base_path, "faiss_index_global")
+        return os.path.exists(global_index_path)
 
-        print("\nconcursos: ", concursos)
-        for concurso in concursos:
-            indices = self.df_chunks[self.df_chunks["Concurso"] == concurso].index
-            if len(indices) > 0:
-                concurso_indices[concurso] = (indices.min(), indices.max())
+    def create_indices(self):
+        """Creates a FAISS index for each contest and a global index."""
+        contests = self.df_chunks["Concurso"].dropna().unique()
+        self.concurso_indices = {}  # ✅ Ensures the attribute exists before use
 
-        return concurso_indices
+        print(f"\n🔍 Creating indices for contests: {contests}")
+        os.makedirs(self.base_path, exist_ok=True)
 
-    def create_index(self, texts):
-        """Cria um índice FAISS a partir de uma lista de textos."""
-        print(f"🔹 Criando embeddings para {len(texts)} chunks...")
+        for contest in contests:
+            chunks = self.df_chunks[self.df_chunks["Concurso"] == contest]["Chunk"].dropna().tolist()
+            index_path = os.path.join(self.base_path, f"faiss_index_{contest.lower()}")
+
+            if chunks:
+                print(f"📌 Creating FAISS index for {contest} with {len(chunks)} chunks...")
+                self.indices[contest] = self._create_faiss_index(index_path, chunks)
+                self.concurso_indices[contest] = index_path  # ✅ Ensures correct tracking
+
+        # Create global index
+        global_chunks = self.df_chunks["Chunk"].dropna().tolist()
+        global_index_path = os.path.join(self.base_path, "faiss_index_global")
+        self.indices["global"] = self._create_faiss_index(global_index_path, global_chunks)
+        self.concurso_indices["global"] = global_index_path  # ✅ Add global index path
+
+    def _create_faiss_index(self, index_path, texts):
+        """Creates a FAISS index for the given texts and saves it to disk."""
+        print(f"🔹 Generating embeddings for {len(texts)} chunks...")
         embeddings = [self.embedding_model.get_embedding(text) for text in texts]
         embeddings = np.array(embeddings, dtype=np.float32)
 
-        self.index = faiss.IndexFlatL2(embeddings.shape[1])
-        self.index.add(embeddings)
+        index = faiss.IndexFlatL2(embeddings.shape[1])
+        index.add(embeddings)
 
-        os.makedirs(os.path.dirname(self.index_path), exist_ok=True)
-        faiss.write_index(self.index, self.index_path)
-        print("✅ FAISS index criado e salvo.")
+        faiss.write_index(index, index_path)
+        print(f"✅ FAISS index saved at: {index_path}")
 
-    def create_index_from_chunks(self):
-        """Cria um índice FAISS a partir do CSV `results_extraction_chunks_updated.csv`."""
-        csv_path = "data/processed/results_extraction_chunks_updated.csv"
-        if os.path.exists(csv_path):
-            self.create_index(self.df_chunks["Chunk"].dropna().tolist())
+        return index
+
+    def load_indices(self):
+        """Loads all FAISS indices from disk."""
+        if not self.concurso_indices:
+            self.concurso_indices = {}  # ✅ Ensures self.concurso_indices is not None
+
+        for contest in self.df_chunks["Concurso"].dropna().unique():
+            index_path = os.path.join(self.base_path, f"faiss_index_{contest.lower()}")
+            if os.path.exists(index_path):
+                self.indices[contest] = faiss.read_index(index_path)
+                self.concurso_indices[contest] = index_path  # ✅ Keep track of loaded indices
+                print(f"✅ Loaded FAISS index for {contest}.")
+            else:
+                print(f"⚠️ FAISS index missing for {contest}. Recreating...")
+                self.create_indices()
+
+        # Load global index
+        global_index_path = os.path.join(self.base_path, "faiss_index_global")
+        if os.path.exists(global_index_path):
+            self.indices["global"] = faiss.read_index(global_index_path)
+            self.concurso_indices["global"] = global_index_path  # ✅ Ensure global index is tracked
+            print("✅ Loaded FAISS global index.")
         else:
-            print("❌ Erro: Nenhum arquivo de chunks encontrado. Rode `extractor.py` primeiro.")
+            print("⚠️ Global FAISS index missing. Recreating...")
+            self.create_indices()
 
-    def load_index(self):
-        """Carrega o índice FAISS salvo."""
-        if os.path.exists(self.index_path):
-            self.index = faiss.read_index(self.index_path)
-            print("✅ FAISS index carregado.")
-        else:
-            print("❌ Erro: FAISS index não encontrado! Execute `create_index_from_chunks()` primeiro.")
+    def search(self, query, contest=None, k=50, rerank_top_n=10):
+        """
+        Searches for relevant chunks using FAISS, prioritizing a contest-specific index if provided.
+        If no relevant chunks are found, falls back to the global index.
 
-    def search(self, query, concurso=None, k=50, rerank_top_n=10):
-        """Faz busca no FAISS, priorizando o concurso específico e ampliando para global se necessário."""
+        Args:
+        - query (str): User query.
+        - contest (str, optional): Contest to filter search results.
+        - k (int): Number of results to retrieve from FAISS.
+        - rerank_top_n (int): Number of top results to return after reranking.
+
+        Returns:
+        - List of relevant chunks.
+        """
         try:
             query_embedding = np.array([self.embedding_model.get_embedding(query)], dtype=np.float32)
-            distances, indices = self.index.search(query_embedding, k)
 
-            print(f"🔍 FAISS Retornou Índices: {indices}")
-            print(f"🔍 FAISS Retornou Distâncias: {distances}")
+            # Step 1: Search contest-specific index (if available)
+            if contest and contest in self.indices:
+                print(f"🔍 Searching in FAISS index for {contest}...")
+                index = self.indices[contest]
+            else:
+                print(f"⚠️ No index found for {contest}. Searching globally...")
+                index = self.indices["global"]
 
-            filtered_indices = indices[0].tolist()
-            retrieved_texts = []
+            # Perform FAISS search
+            distances, indices = index.search(query_embedding, k)
+            print(f"🔍 FAISS returned indices: {indices}")
+            print(f"🔍 FAISS returned distances: {distances}")
 
-            # 🔹 Filtro de concurso, se houver um identificado
-            if concurso and concurso in self.concurso_indices:
-                min_index, max_index = self.concurso_indices[concurso]
-                filtered_indices = [i for i in filtered_indices if min_index <= i <= max_index]
+            # Filter indices to remove invalid ones
+            retrieved_indices = [i for i in indices[0] if 0 <= i < len(self.df_chunks)]
+            retrieved_texts = [self.df_chunks.iloc[i]["Chunk"] for i in retrieved_indices]
 
-            retrieved_texts = [self.df_chunks.iloc[i]["Chunk"] for i in filtered_indices if i < len(self.df_chunks)]
+            # Step 2: If no results in contest-specific index, fallback to global search
+            if not retrieved_texts and contest:
+                print(f"⚠️ No relevant chunks found for {contest}. Falling back to global search...")
+                distances, indices = self.indices["global"].search(query_embedding, k)
+                retrieved_indices = [i for i in indices[0] if 0 <= i < len(self.df_chunks)]
+                retrieved_texts = [self.df_chunks.iloc[i]["Chunk"] for i in retrieved_indices]
 
-            # 🔹 Se não encontrou nada, buscar globalmente
+            # Step 3: If still no results, return error message
             if not retrieved_texts:
-                print(f"⚠️ Nenhum chunk encontrado para {concurso}. Tentando busca global...")
-                filtered_indices = indices[0].tolist()
-                retrieved_texts = [self.df_chunks.iloc[i]["Chunk"] for i in filtered_indices if i < len(self.df_chunks)]
+                return ["❌ No relevant information found for this contest."]
 
-            if not retrieved_texts:
-                return ["❌ Nenhuma informação específica encontrada para esse concurso."]
-
-            # 🔹 Melhorando o reranking com modelo mais avançado
+            # Step 4: Apply reranking for better precision
             rerank_scores = util.cos_sim(
                 self.reranker.encode(query, convert_to_tensor=True),
                 self.reranker.encode(retrieved_texts, convert_to_tensor=True)
             )
             ranked_results = sorted(zip(retrieved_texts, rerank_scores.tolist()), key=lambda x: x[1], reverse=True)
 
+            # Return top reranked results
             best_chunks = [text for text, _ in ranked_results[:rerank_top_n]]
             return best_chunks
 
         except Exception as e:
-            print(f"❌ Erro ao buscar no FAISS: {e}")
+            print(f"❌ Error in FAISS search: {e}")
             traceback.print_exc()
             return []
 
-
-
-
     def print_faiss_status(self):
-        if self.index is None:
-            print("❌ FAISS index não foi inicializado.")
-        else:
-            print(f"✅ FAISS index contém {self.index.ntotal} embeddings.")
+        """Prints the status of FAISS indices."""
+        for contest, index in self.indices.items():
+            print(f"✅ {contest} FAISS index contains {index.ntotal} embeddings.")
 
-
-# Teste
+# Test script
 if __name__ == "__main__":
     store = FAISSVectorStore()
-    store.load_index()
-    query = "Quantas vagas estão abertas?"
-    concurso = "FUNAI"
-    results = store.search(query, concurso)
-    print(f"🔍 Melhores Chunks para {concurso}: {results}")
+    store.load_indices()
+    query = "How many open positions are available?"
+    contest = "FUNAI"
+    results = store.search(query, contest)
+    print(f"🔍 Best chunks for {contest}: {results}")
