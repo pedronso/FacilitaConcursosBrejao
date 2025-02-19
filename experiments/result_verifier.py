@@ -18,7 +18,9 @@ class ResultVerifier:
     def review(self) -> None:
         with open(RESULT_PATH, 'r', encoding='utf-8') as file:
             resultados = json.load(file)
-        
+        media = 0
+        total = 0
+
         for key, value in resultados.items():
             #print(value)
             if not isinstance(value, dict):
@@ -49,7 +51,11 @@ class ResultVerifier:
                 
                 value['avaliacoes'][_key] = int(nota)
                 print(f'teste:{key}\npergunta: {_key}\n{int(nota)}')
+                media += int(nota)
+                total += 1
+                value['media'] = media/total     
                 self.save_json(resultados)
+
         
 
 #calcular média
