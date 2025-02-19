@@ -1,3 +1,4 @@
+from multiprocessing import process
 import time
 import math
 from vectorstore.faiss_store import FAISSVectorStore
@@ -25,9 +26,62 @@ class RAGPipeline:
         self.max_tokens_per_request = max_tokens_per_request
         self.max_chunks = max_chunks
         self.tokens_per_minute_limit = tokens_per_minute_limit
-        self.tokens_used = 0  # Contador de tokens usados
-        self.start_time = time.time()  # Início da contagem de tempo
+        self.tokens_used = 0 
+        self.start_time = time.time()   
+        self.concursos_mapeados = {
+            "ibge": ["ibge", "instituto brasileiro de geografia e estatística"],
+            "cnen": ["cnen", "comissão nacional de energia nuclear"],
+            "cceb": ["cceb", "censo cidades estudantil brasil"],
+            "aeronautica": ["aeronautica", "força aérea", "fab"],
+            "aeb": ["aeb", "agência espacial brasileira"],
+            "ibama": ["ibama", "instituto brasileiro do meio ambiente"],
+            "funai": ["funai", "fundação nacional do índio"],
+            "trf": ["trf", "tribunal regional federal"],
+            "marinha": ["marinha", "força naval", "navy"],
+        }
+        
+    def normalize_query(self, query):
+        """Garante que a query contenha a sigla correta do concurso."""
+        concursos_mapeados = {
+            "ibge": ["ibge", "instituto brasileiro de geografia e estatística"],
+            "cnen": ["cnen", "comissão nacional de energia nuclear"],
+            "cceb": ["cceb", "censo cidades estudantil brasil"],
+            "aeronautica": ["aeronautica", "força aérea", "fab"],
+            "aeb": ["aeb", "agência espacial brasileira"],
+            "ibama": ["ibama", "instituto brasileiro do meio ambiente"],
+            "funai": ["funai", "fundação nacional do índio"],
+            "trf": ["trf", "tribunal regional federal"],
+            "marinha": ["marinha", "força naval", "navy"],
+        }
+    
+        query = query.lower()
+        concurso_encontrado = None
 
+        for sigla, palavras in concursos_mapeados.items():
+            for palavra in palavras:
+                if palavra in query:
+                    concurso_encontrado = sigla
+                    break
+            if concurso_encontrado:
+                break
+
+        if not concurso_encontrado:
+            return "Especifique um concurso na sua pergunta. Concursos disponíveis: " + ", ".join(concursos_mapeados.keys())
+
+        return f"{query} ({concurso_encontrado})"
+    
+    def corrigir_concurso(self, query):
+        """Corrige possíveis erros de digitação e garante que a sigla correta seja usada."""
+        palavras_usuario = query.lower().split()
+        concursos_validos = list(self.concursos_mapeados.keys())  # Lista de siglas oficiais
+        
+        for i, palavra in enumerate(palavras_usuario):
+            match, score = process.extractOne(palavra, concursos_validos, score_cutoff=80)  # Encontra similaridade acima de 80%
+            if match:
+                palavras_usuario[i] = match  # Substitui palavra errada pela sigla correta
+
+        return " ".join(palavras_usuario)  # Retorna a query corrigida
+    
     def reset_token_usage_if_needed(self):
         """Reseta o contador de tokens após 1 minuto."""
         if time.time() - self.start_time >= 60:
@@ -48,61 +102,80 @@ class RAGPipeline:
         num_parts = math.ceil(len(words) / max_length)
         return [" ".join(words[i * max_length:(i + 1) * max_length]) for i in range(num_parts)]
 
+    
+
+
+
     def generate_answer(self, query):
         """Busca os chunks relevantes e gera resposta via LLM em partes para evitar perda de dados."""
-        #indices = self.vector_store.search(query, k=self.max_chunks)
+        
+        # 1️⃣ Corrigir e normalizar a query
+        #query_corrigida = self.corrigir_concurso(query)
+        query_corrigida = self.normalize_query(query)
+        #print(f"🔍 Query corrigida: {query_corrigida}")  # Debug para verificar correção
+
+        if "Especifique um concurso" in query_corrigida:
+            return query_corrigida
+
+        # 2️⃣ Buscar índices relevantes no FAISS
+        indices = self.buscar_indices_no_faiss(query_corrigida)
+        
+        # 3️⃣ Filtrar índices pelo concurso correspondente
+        indices_filtrados = self.filtrar_indices_por_concurso(indices, query_corrigida)
+        
+        # 4️⃣ Selecionar os textos correspondentes aos índices
+        textos_relevantes = self.obter_textos_relevantes(indices_filtrados)
+
+        # 5️⃣ Gerar a resposta usando o LLM
+        resposta = self.gerar_resposta_com_llm(query_corrigida, textos_relevantes)
+
+        return resposta
+
+
+    def buscar_indices_no_faiss(self, query):
+        """Realiza a busca no FAISS e retorna os índices encontrados."""
         query = query.strip().lower()
         indices = self.vector_store.search(query, 50)
-        #print(self.max_chunks)
-        indices = [int(i) for i in indices if 0 <= i < len(self.df_chunks)]
-        
+        return [int(i) for i in indices if 0 <= i < len(self.df_chunks)]
 
+
+    def filtrar_indices_por_concurso(self, indices, query):
+        """Filtra os índices com base no concurso mencionado na query."""
         if 'ibge' in query:
             indices = [i for i in indices if i <= 104]
-        
         elif 'cnen' in query:
             indices = [i for i in indices if 104 < i <= 759]
-        
-        #"CCEB- Censo Cidades Estudantil Brasil"
         elif 'cceb' in query:
             indices = [i for i in indices if 759 < i <= 969]
-        
         elif 'aeronautica' in query:
             indices = [i for i in indices if 969 < i <= 1396]
-
         elif 'aeb' in query:
             indices = [i for i in indices if 1396 < i <= 1787]
-
         elif 'ibama' in query:
             indices = [i for i in indices if 1787 < i <= 2272]
-
         elif 'funai' in query:
             indices = [i for i in indices if 2272 < i <= 2579]
-
-        elif 'funai' in query:
-            indices = [i for i in indices if 2272 < i <= 2579]
-            
         elif 'trf' in query:
             indices = [i for i in indices if 2579 < i <= 3075]
-            
         elif 'marinha' in query:
             indices = [i for i in indices if 3075 < i <= 3522]
         
-        #TODO: else: resumo global dos editais, com perguntas/respostas gerais a serem encontradas
-            
-        indices = indices[:self.max_chunks]
-        
-        textos_relevantes = " ".join([self.df_chunks.iloc[i]["Chunk"] for i in indices])
+        return indices[:self.max_chunks]
 
-        # print(textos_relevantes)
-        print(indices)
-        # Divide o texto excedente em partes de no máximo `max_tokens_per_request`
-        #partes_texto = self.split_text(textos_relevantes, self.max_tokens_per_request)
-        
-        prompt = f"Baseando-se somente nos seguintes textos:{textos_relevantes}\n\n responda: {query}"
-        resposta = self.llm.generate_response(prompt)
 
-        return resposta
+    def obter_textos_relevantes(self, indices):
+        """Obtém os textos correspondentes aos índices filtrados."""
+        return " ".join([self.df_chunks.iloc[i]["Chunk"] for i in indices])
+
+
+    def gerar_resposta_com_llm(self, query, textos_relevantes):
+        """Gera a resposta utilizando o LLM com base nos textos filtrados."""
+        print(f"🔍 Processando pergunta: {query}")
+        print(f"🔹 Índices selecionados: {len(textos_relevantes.split())} tokens")
+
+        prompt = f"Baseando-se somente nos seguintes textos:{textos_relevantes}\n\n Responda: {query}"
+        return self.llm.generate_response(prompt)
+
     
     def generate_full_answer(self, query):
         """

@@ -38,7 +38,7 @@ def etapa_2_extracao():
         "data/raw/ibge.txt",
     ]
     files = [
-        "data/raw/ibge.txt",
+        "data/extracted_pedro/ibge.txt",
         "data/extracted_pedro/cnen.txt",
         "data/extracted_pedro/cceb.txt",
         "data/extracted_pedro/aeronautica.txt",
@@ -154,13 +154,20 @@ def etapa_4_testar_rag( ):
     """
     #print(perguntas)
     perguntas = [
-                 "Qual é o cronograma completo do processo seletivo do ibama, desde as inscrições até a divulgação do resultado final?",
-                "No concurso do ibama Quantas vagas estão sendo oferecidas no total e como elas estão distribuídas entre os municípios?",
-                 "Qual é a carga horária para as funções do concurso do ibama?",
-                 "Qual é a remuneração mensal para as funções de Agente de Pesquisas e Mapeamento e Supervisor de Coleta e Qualidade?",
-                 "Sovre o concurso do ibama Como e onde as inscrições devem ser realizadas?",
-                 "Quais documentos são necessários para a inscrição e quais devem ser apresentados no momento da contratação do ibama?",
-                 "Onde os candidatos podem obter informações adicionais sobre o processo seletivo do ibama?"]
+                 "Qual é o cronograma completo do processo seletivo da fundação nacional do índio, desde as inscrições até a divulgação do resultado final?",
+                 "Qual é o cronograma completo do processo seletivo do instituto brasileiro do meio ambiente, desde as inscrições até a divulgação do resultado final?",
+                 "Qual é o cronograma completo do processo seletivo do trf, desde as inscrições até a divulgação do resultado final?",
+                 "Qual é o cronograma completo do processo seletivo do instituto brasileiro de geografia e estatística, desde as inscrições até a divulgação do resultado final?",
+                 "Qual é o cronograma completo do processo seletivo do concurso da energia nuclear, desde as inscrições até a divulgação do resultado final?",
+                 "Qual é o cronograma completo do processo seletivo do censo cidades estudantil brasil, desde as inscrições até a divulgação do resultado final?",
+                 "Qual é o cronograma completo do processo seletivo do fab, desde as inscrições até a divulgação do resultado final?",
+                 "Qual é o cronograma completo do processo seletivo do agência espacial brasileira, desde as inscrições até a divulgação do resultado final?",
+                #"No concurso do ibama Quantas vagas estão sendo oferecidas no total e como elas estão distribuídas entre os municípios?",
+                # "Qual é a remuneração mensal para as funções de Agente de Pesquisas e Mapeamento e Supervisor de Coleta e Qualidade?",
+                # "Sobre o concurso do ibama Como e onde as inscrições devem ser realizadas?",
+                # "Quais documentos são necessários para a inscrição e quais devem ser apresentados no momento da contratação do ibama?",
+                # "Onde os candidatos podem obter informações adicionais sobre o processo seletivo do ibama?"
+                ]
     
     for pergunta in perguntas:
         try:
