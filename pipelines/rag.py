@@ -71,16 +71,17 @@ class RAGPipeline:
         return f"{query} ({concurso_encontrado})"
     
     def corrigir_concurso(self, query):
-        """Corrige possíveis erros de digitação e garante que a sigla correta seja usada."""
-        palavras_usuario = query.lower().split()
-        concursos_validos = list(self.concursos_mapeados.keys())  # Lista de siglas oficiais
-        
-        for i, palavra in enumerate(palavras_usuario):
-            match, score = process.extractOne(palavra, concursos_validos, score_cutoff=80)  # Encontra similaridade acima de 80%
-            if match:
-                palavras_usuario[i] = match  # Substitui palavra errada pela sigla correta
-
-        return " ".join(palavras_usuario)  # Retorna a query corrigida
+        pass
+    #    """Corrige possíveis erros de digitação e garante que a sigla correta seja usada."""
+    #    palavras_usuario = query.lower().split()
+    #    concursos_validos = list(self.concursos_mapeados.keys())  # Lista de siglas oficiais
+    #    
+    #    for i, palavra in enumerate(palavras_usuario):
+    #        match, score = process.extractOne(palavra, concursos_validos, score_cutoff=80)  # Encontra similaridade acima de 80%
+    #        if match:
+    #            palavras_usuario[i] = match  # Substitui palavra errada pela sigla correta
+    #
+    #    return " ".join(palavras_usuario)  # Retorna a query corrigida
     
     def reset_token_usage_if_needed(self):
         """Reseta o contador de tokens após 1 minuto."""
