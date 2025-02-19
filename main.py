@@ -117,68 +117,75 @@ def etapa_3_embeddings():
 
     print(f"✅ FAISS index salvo em: {INDEX_FAISS}")
 
-def etapa_4_testar_rag( ):
+perguntas = [
+    # IBGE
+    "Quais são as funções disponíveis no processo seletivo do IBGE e quais os requisitos para cada uma?",
+    "Qual o prazo para inscrições e a taxa de inscrição para o processo seletivo do IBGE?",
+    "Como será o processo de avaliação e classificação dos candidatos no concurso do IBGE?",
+    "Qual o valor da remuneração e dos auxílios oferecidos para os cargos disponíveis no IBGE?",
+
+    # Marinha
+    "Quais são os requisitos de idade e escolaridade para ingresso no Curso de Formação de Marinheiros?",
+    "Como será composta a Prova Escrita Objetiva e quais os critérios de aprovação?",
+    "Como funciona o Teste de Aptidão Física de Ingresso (TAF-i) para os candidatos?",
+    "Quais são as cidades onde serão realizadas as provas e eventos complementares do concurso?",
+
+    # MPU
+    "Quais os cargos disponíveis no concurso do MPU e quantas vagas são oferecidas?",
+    "Como será composta a prova objetiva e quais são os critérios de classificação e eliminação?",
+    "Quais são os requisitos mínimos para investidura nos cargos do MPU?",
+    "Qual o prazo de validade do concurso e se pode ser prorrogado?",
+
+    # TRF
+    "Quantas vagas estão disponíveis para o cargo de Juiz Federal Substituto no TRF5?",
+    "Como será estruturada a prova oral e quais os critérios de avaliação?",
+    "Quais são os requisitos mínimos exigidos para concorrer ao cargo de Juiz Federal Substituto?",
+    "Quais etapas compõem o concurso e como funciona o sistema de classificação?",
+
+    # AEB
+    "Quais os cargos oferecidos no concurso da AEB e quais os requisitos para cada um?",
+    "Como será composta a prova objetiva e quais são os critérios de eliminação?",
+    "Quais cidades aplicarão as provas do concurso da AEB?",
+    "Qual é a jornada de trabalho e o valor da remuneração dos cargos da AEB?",
+
+    # Aeronáutica
+    "Qual a idade máxima permitida para ingresso no Curso de Formação de Sargentos da Aeronáutica?",
+    "Como funciona o processo de escolha da especialidade dentro do curso?",
+    "Quais são os critérios de aprovação no Teste de Aptidão Física?",
+    "Quais são as etapas do concurso para ingresso na Aeronáutica?",
+
+    # CCEB
+    "Quais são os cargos oferecidos no concurso do CCEB e quais os requisitos mínimos?",
+    "Como será composta a prova objetiva e qual o critério de classificação?",
+    "Quais estados terão vagas disponíveis para os cargos do CCEB?",
+    "Qual a duração do contrato para os aprovados no concurso do CCEB?",
+
+    # FUNAI
+    "Quais funções estão disponíveis no concurso da FUNAI e quais os requisitos para cada uma?",
+    "Como será o processo de avaliação e classificação dos candidatos no concurso da FUNAI?",
+    "Qual é o valor da remuneração e os benefícios oferecidos para os cargos da FUNAI?",
+    "Onde serão realizadas as provas do concurso da FUNAI?",
+
+    # IBAMA
+    "Quais são os cargos oferecidos no concurso do IBAMA e quantas vagas estão disponíveis?",
+    "Como será composta a prova objetiva e quais são os critérios de classificação?",
+    "Qual é a jornada de trabalho e a remuneração inicial para os cargos do IBAMA?",
+    "Como será realizada a lotação dos aprovados no concurso do IBAMA?",
+]
+
+def etapa_4_testar_rag():
     """Executa um teste no chatbot RAG."""
     print("\n🤖 [4/6] Testando consultas ao sistema RAG...")
     
     rag = RAGPipeline()
-    """
-    queries_teste = [
-        "Quais são os prazos de inscrição do concurso da marinha?",
-        "Quais são os concursos para engenheiros?",
-        "Tem algum concurso para nível médio?",
-        "Quantas vagas estão abertas para o IBAMA?",
-        "O MPU está com concursos abertos?"
-    ]
-    """
-    """
-    concursos = [
-        "do IBGE",
-    ]
-    queries_teste =[
-        "ANEXO I - Quadro de Vagas e Postos de Inscrição do",
-        "Como funciona a classificação e titulação para o concurso",
-        "Qual é a data da inscrição para o concurso",
-        "Qual é o salário para o concurso",
-        "Qual é a quantidade de vagas para o concurso",
-        "Qual é a carga horária para os cargos do concurso"
-    ]
-    """
-
     perguntas_respostas_dict = {}
-    """
-    for concurso in concursos:
-        for querie in queries_teste:
-            pergunta = f'{querie} {concurso}'
 
-            perguntas.append(pergunta)
-    """
-    #print(perguntas)
-    perguntas = [
-                 "Qual é o cronograma completo do processo seletivo da fundação nacional do índio, desde as inscrições até a divulgação do resultado final?",
-                 "Qual é o cronograma completo do processo seletivo do instituto brasileiro do meio ambiente, desde as inscrições até a divulgação do resultado final?",
-                 "Qual é o cronograma completo do processo seletivo do trf, desde as inscrições até a divulgação do resultado final?",
-                 "Qual é o cronograma completo do processo seletivo do instituto brasileiro de geografia e estatística, desde as inscrições até a divulgação do resultado final?",
-                 "Qual é o cronograma completo do processo seletivo do concurso da energia nuclear, desde as inscrições até a divulgação do resultado final?",
-                 "Qual é o cronograma completo do processo seletivo do censo cidades estudantil brasil, desde as inscrições até a divulgação do resultado final?",
-                 "Qual é o cronograma completo do processo seletivo do fab, desde as inscrições até a divulgação do resultado final?",
-                 "Qual é o cronograma completo do processo seletivo do agência espacial brasileira, desde as inscrições até a divulgação do resultado final?",
-                #"No concurso do ibama Quantas vagas estão sendo oferecidas no total e como elas estão distribuídas entre os municípios?",
-                # "Qual é a remuneração mensal para as funções de Agente de Pesquisas e Mapeamento e Supervisor de Coleta e Qualidade?",
-                # "Sobre o concurso do ibama Como e onde as inscrições devem ser realizadas?",
-                # "Quais documentos são necessários para a inscrição e quais devem ser apresentados no momento da contratação do ibama?",
-                # "Onde os candidatos podem obter informações adicionais sobre o processo seletivo do ibama?"
-                ]
-    
     for pergunta in perguntas:
         try:
             print(f"\n🔹 Pergunta: {pergunta}")
-            #resposta_local = rag.generate_full_answer(query)
             resposta = rag.generate_answer(pergunta)
             print(f"💬 Resposta: {resposta}")
-            #print(f"💬 Resposta: {resposta_local}")
             perguntas_respostas_dict[pergunta] = str(resposta)
-
 
         except Exception as e:
             print(f"❌ Erro ao gerar resposta para '{pergunta}': {e}")
@@ -251,8 +258,8 @@ if __name__ == "__main__":
     #etapa_1_scraper()
     #etapa_2_extracao()
     #etapa_3_embeddings()
-    #etapa_4_testar_rag()
-    etapa_4_1_avaliar_rag()
+    etapa_4_testar_rag()
+    #etapa_4_1_avaliar_rag()
     #etapa_5_experimentos()
     #etapa_6_metricas()
 
