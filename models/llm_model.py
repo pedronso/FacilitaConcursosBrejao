@@ -78,7 +78,13 @@ class LocalLLMModel:
 
 
 class LLMReviewerModel(LLMModel):
-    
+    def __init__(self, model_name='llama3-70b-8192'):
+        """
+        Inicializa a conexão com o modelo LLM da Groq.
+        - model_name: Modelo a ser utilizado (ex: `llama3-70b-8192` ou `mixtral-8x7b-32768`).
+        """
+        super().__init__(model_name)
+
     def generate_response(self, prompt):
         system = """Você é um avaliador de respostas. Sua tarefa é analisar a qualidade de uma resposta com base na pergunta feita e atribuir uma nota de 0 a 10, considerando os seguintes critérios:
 
@@ -87,11 +93,16 @@ class LLMReviewerModel(LLMModel):
 3. **Relevância**: A resposta é relevante para a pergunta feita?
 4. **Clareza**: A resposta é clara e bem estruturada?
 
-Instruções:
-- Atribua uma nota de 0 a 10 para a resposta.
+### **Instruções**
+- Atribua uma nota de **0 a 10** para a resposta.
 - Responda **APENAS COM O NÚMERO DA NOTA**, sem justificativas, explicações ou texto adicional.
+- Penalize respostas vagas, evasivas ou que indicam falta de informação:
+  - Se a resposta disser "Não sei" ou não fornecer qualquer dado útil, a nota deve ser **0**.
+  - Se a resposta for genérica e não agregar valor, a nota deve ser no máximo **2**.
+  - Respostas parcialmente corretas, mas com falta de detalhes essenciais, devem ter notas entre **3 e 6**.
+  - Apenas respostas completas e corretas devem receber **8 a 10**.
 
-Exemplos:
+### **Exemplos**
 Pergunta: "Qual é a data da inscrição para o concurso da Aeronáutica?"
 Resposta: "O período de inscrição para o concurso da Aeronáutica (CFS 1/2026) é de 15/01/2025 a 14/02/2025."
 Nota: 10
@@ -103,6 +114,10 @@ Nota: 2
 Pergunta: "Qual é a data da inscrição para o concurso da Aeronáutica?"
 Resposta: "Não sei."
 Nota: 0
+
+Pergunta: "Quais são os requisitos para o concurso?"
+Resposta: "Os requisitos variam conforme o edital. Recomenda-se verificar diretamente no site da Aeronáutica."
+Nota: 1
 """
         messages = [('system', system),
                     ("human", prompt)]

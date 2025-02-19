@@ -8,6 +8,7 @@ from vectorstore.faiss_store import FAISSVectorStore
 from pipelines.rag import RAGPipeline
 from reports.metrics import avaliar_sistema
 from experiments.results_saver import save_results
+from experiments.result_verifier import ResultVerifier
 import subprocess
 import sys
 import json
@@ -234,9 +235,9 @@ def etapa_6_metricas():
     print(f"\n⏳ Tempo total da avaliação: {total_time:.2f} segundos.")
 
 
-def etapa_7_avaliar_respostas():
-
-    pass
+def etapa_4_1_avaliar_rag():
+    reviewer = ResultVerifier()
+    reviewer.review()
 
 
 def iniciar_interface():
@@ -250,10 +251,10 @@ if __name__ == "__main__":
     #etapa_1_scraper()
     #etapa_2_extracao()
     #etapa_3_embeddings()
-    etapa_4_testar_rag()
+    #etapa_4_testar_rag()
+    etapa_4_1_avaliar_rag()
     #etapa_5_experimentos()
     #etapa_6_metricas()
-    #etapa_7_avaliar_respostas()
 
     total_time = time.time() - start_time
     print(f"\n⏳ Tempo total de execução: {total_time:.2f} segundos.")

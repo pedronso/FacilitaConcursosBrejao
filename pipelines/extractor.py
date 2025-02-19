@@ -18,10 +18,10 @@ def limpar_texto(texto):
     texto_limpo = texto_limpo.strip()
     return texto_limpo
 
-def dividir_em_chunks(texto, rotulo, com_rotulo=True, tamanho_maximo=dict_models['chunk_size'], chunk_overlap=dict_models['chunk_overlap']):
-    tamanho_rotulo = len(f'[{rotulo}] ') if com_rotulo else 0
+def dividir_em_chunks(texto, rotulo, com_rotulo=dict_models['labeled'], tamanho_maximo=dict_models['chunk_size'], chunk_overlap=dict_models['chunk_overlap']):
+    # tamanho_rotulo = len(f'[{rotulo}] ') if com_rotulo else 0
     
-    tamanho_ajustado = tamanho_maximo-tamanho_rotulo
+    # tamanho_ajustado = tamanho_maximo-tamanho_rotulo
 
     text_splitter = TokenTextSplitter(chunk_size=tamanho_maximo, chunk_overlap=chunk_overlap)
     chunks = text_splitter.split_text(texto)
