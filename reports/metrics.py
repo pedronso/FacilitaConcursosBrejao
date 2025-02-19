@@ -15,7 +15,7 @@ def carregar_dados():
     
     df = pd.read_csv(CSV_CHUNKS)
     
-    if "Chunks" not in df.columns:
+    if "Chunk" not in df.columns:
         print(f"❌ A coluna 'Chunks' não está presente no arquivo {CSV_CHUNKS}.")
         return None
     

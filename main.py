@@ -1,5 +1,6 @@
 import os
 import time
+import traceback
 import pandas as pd
 from pipelines.scraper import fetch_edital_links
 from pipelines.extractor import processar_downloads_e_extração, chunking_texto
@@ -12,7 +13,6 @@ import subprocess
 import sys
 import json
 import tests_vars
-
 
 BASE_URL = "https://www.pciconcursos.com.br/concursos/nacional/"
 CSV_EDITAIS = "data/processed/editais_concursos.csv"
@@ -42,6 +42,9 @@ def etapa_2_extracao():
         "data/extracted_pedro/aeronautica.txt",
         "data/extracted_pedro/AEB-agencia-espacial-brasileira.txt",
         "data/extracted_pedro/ibama.txt",
+        "data/extracted_pedro/edital_funai.txt",
+        "data/extracted_pedro/edital_trf.txt",
+        "data/extracted_pedro/edital_marinha_50pag.txt",
     ]
 
     all_chunks = []
@@ -75,16 +78,16 @@ def etapa_3_embeddings():
 
 
     """
-    if "Chunks" not in df_chunks.columns:
+    if "Chunk" not in df_chunks.columns:
         print("⚠️ A coluna 'Chunks' não foi encontrada no CSV. Verifique os dados processados.")
         return
     """
 
     # Verifica se a coluna 'Chunks' é string e converte para lista se necessário
     """
-    if isinstance(df_chunks["Chunks"].iloc[0], str):
+    if isinstance(df_chunks["Chunk"].iloc[0], str):
         try:
-            df_chunks["Chunks"] = df_chunks["Chunks"].apply(eval)
+            df_chunks["Chunk"] = df_chunks["Chunk"].apply(eval)
         except:
             print("⚠️ Erro ao converter 'Chunks' para lista.")
             return
@@ -105,8 +108,9 @@ def etapa_3_embeddings():
     
     store = FAISSVectorStore()
     #texts = [" ".join(map(str, row.dropna())) for _, row in df_chunks.iterrows()]
-    #store.create_index([" ".join(chunk) if isinstance(chunk, list) else chunk for chunk in df_chunks["Chunks"]])
+    #store.create_index([" ".join(chunk) if isinstance(chunk, list) else chunk for chunk in df_chunks["Chunk"]])
     store.create_index(chunks)
+    store.print_faiss_status()
 
 
     print(f"✅ FAISS index salvo em: {INDEX_FAISS}")
@@ -146,15 +150,18 @@ def etapa_4_testar_rag( ):
             pergunta = f'{querie} {concurso}'
 
             perguntas.append(pergunta)
-    """
+    """ 
+    
+
+
     #print(perguntas)
-    perguntas = ["No concurco do ibge Quantas vagas estão sendo oferecidas no total e como elas estão distribuídas entre os municípios?",
-                 "Qual é a carga horária para as funções do concurso do ibge?",
+    perguntas = ["No concurco da funai Quantas vagas estão sendo oferecidas no total e como elas estão distribuídas entre os municípios?",
+                 "Qual é a carga horária para as funções do concurso da funai?",
                  "Qual é a remuneração mensal para as funções de Agente de Pesquisas e Mapeamento e Supervisor de Coleta e Qualidade?",
-                 "Sovre o concurso do ibge Como e onde as inscrições devem ser realizadas?",
-                 "Quais documentos são necessários para a inscrição e quais devem ser apresentados no momento da contratação do ibge?",
-                 "Qual é o cronograma completo do processo seletivo do ibge, desde as inscrições até a divulgação do resultado final?",
-                 "Onde os candidatos podem obter informações adicionais sobre o processo seletivo do ibge?"]
+                 "Sobre o concurso da funai Como e onde as inscrições devem ser realizadas?",
+                 "Quais documentos são necessários para a inscrição e quais devem ser apresentados no momento da contratação da funai?",
+                 "Qual é o cronograma completo do processo seletivo da funai, desde as inscrições até a divulgação do resultado final?",
+                 "Onde os candidatos podem obter informações adicionais sobre o processo seletivo da funai?"]
     for pergunta in perguntas:
         try:
             print(f"\n🔹 Pergunta: {pergunta}")
@@ -167,6 +174,8 @@ def etapa_4_testar_rag( ):
 
         except Exception as e:
             print(f"❌ Erro ao gerar resposta para '{pergunta}': {e}")
+            print("⚠️ Stack Trace:")
+            traceback.print_exc()  # Exibe erro completo
     
     save_results(perguntas_respostas_dict)
 

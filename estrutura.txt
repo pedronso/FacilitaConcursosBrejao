@@ -1,0 +1,130 @@
+﻿Listagem de caminhos de pasta
+O número de série do volume é 2218-F7DD
+C:.
+│   .env
+│   .gitignore
+│   app.py
+│   config.py
+│   estrutura.txt
+│   main.py
+│   README.md
+│   requirements.txt
+│   result_verifier.py
+│   tempCodeRunnerFile.py
+│   tests_vars.py
+│   
+├───.vscode
+│       c_cpp_properties.json
+│       launch.json
+│       settings.json
+│       
+├───data
+│   ├───embeddings
+│   │       faiss_index
+│   │       
+│   ├───extracted_pedro
+│   │       AEB-agencia-espacial-brasileira.txt
+│   │       aeronautica.csv
+│   │       aeronautica.txt
+│   │       agencia.csv
+│   │       CCEB- Censo Cidades Estudantil Brasil.txt
+│   │       cnen.txt
+│   │       edital_funai.txt
+│   │       edital_marinha_50pag.txt
+│   │       edital_trf.txt
+│   │       ibama.csv
+│   │       ibama.txt
+│   │       mpu.txt
+│   │       
+│   ├───processed
+│   │       editais_concursos.csv
+│   │       results_extraction_chunks.csv
+│   │       results_extraction_chunks_ib.csv
+│   │       results_extraction_chunks_test.csv
+│   │       
+│   ├───raw
+│   │       edital_completo_1668522.pdf
+│   │       edital_de_abertura_1666599.pdf
+│   │       edital_de_abertura_1668617.pdf
+│   │       edital_de_abertura_n_001_2025_1669938.pdf
+│   │       edital_de_abertura_n_01_2025_1668098.pdf
+│   │       edital_de_abertura_n_01_2025_1669009.pdf
+│   │       edital_de_abertura_n_01_2025_1669365.pdf
+│   │       edital_de_abertura_n_01_2025_1669425.pdf
+│   │       edital_de_abertura_n_01_2026_1668576.pdf
+│   │       edital_de_abertura_n_02_2025_1669242.pdf
+│   │       edital_de_abertura_n_1_1667852.pdf
+│   │       edital_de_abertura_retificado_n_1_2025_1668993.pdf
+│   │       ibge.txt
+│   │       
+│   ├───raw_old
+│   │       edital_completo_1668522.pdf
+│   │       edital_de_abertura_1666599.pdf
+│   │       edital_de_abertura_1668617.pdf
+│   │       edital_de_abertura_n_01_2024_1666654.pdf
+│   │       edital_de_abertura_n_01_2025_1668098.pdf
+│   │       edital_de_abertura_n_01_2025_1668483.pdf
+│   │       edital_de_abertura_n_01_2025_1669009.pdf
+│   │       edital_de_abertura_n_01_2025_1669365.pdf
+│   │       edital_de_abertura_n_01_2025_1669425.pdf
+│   │       edital_de_abertura_n_01_2025_1669425_redux.pdf
+│   │       edital_de_abertura_n_01_2026_1668576.pdf
+│   │       edital_de_abertura_n_02_2025_1669242.pdf
+│   │       edital_de_abertura_n_03_2024_retificado_1667514.pdf
+│   │       edital_de_abertura_n_04_2024_retificado_1667515.pdf
+│   │       edital_de_abertura_n_1_1667852.pdf
+│   │       edital_de_abertura_n_1_2025_1668993.pdf
+│   │       reabertura_das_incricoes_1668399.pdf
+│   │       retificacao_ii_edital_de_abertura_n_03_2024_1668498.pdf
+│   │       retificacao_i_1668607.pdf
+│   │       retificacao_i_1668673.pdf
+│   │       retificacao_i_edital_de_abertura_n_03_2024_1667801.pdf
+│   │       retificacao_i_edital_de_abertura_n_04_2024_1667802.pdf
+│   │       
+│   └───responses
+│           resultados.json
+│           resultados_b.json
+│           
+├───experiments
+│       chunking_experiment.py
+│       embeddings_experiment.py
+│       llm_experiment.py
+│       results_saver.py
+│       result_verifier.py
+│       
+├───models
+│   │   embeddings_model.py
+│   │   llm_model.py
+│   │   tempCodeRunnerFile.py
+│   │   
+│   └───__pycache__
+│           embeddings_model.cpython-310.pyc
+│           llm_model.cpython-310.pyc
+│           
+├───pipelines
+│   │   extractor.py
+│   │   rag.py
+│   │   scraper.py
+│   │   tempCodeRunnerFile.py
+│   │   
+│   └───__pycache__
+│           extractor.cpython-310.pyc
+│           rag.cpython-310.pyc
+│           scraper.cpython-310.pyc
+│           
+├───reports
+│   │   graphics.py
+│   │   metrics.py
+│   │   
+│   └───__pycache__
+│           metricas.cpython-310.pyc
+│           metrics.cpython-310.pyc
+│           
+├───ui
+│       app.py
+│       
+├───utils
+├───vectorstore
+│   │   faiss_store.py
+│   │   
+│   └───__pycache__
