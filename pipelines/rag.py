@@ -50,9 +50,31 @@ class RAGPipeline:
 
     def generate_answer(self, query):
         """Busca os chunks relevantes e gera resposta via LLM em partes para evitar perda de dados."""
-        indices = self.vector_store.search(query, k=self.max_chunks)
+        #indices = self.vector_store.search(query, k=self.max_chunks)
+        query = query.strip().lower()
+        indices = self.vector_store.search(query, 50)
         #print(self.max_chunks)
         indices = [int(i) for i in indices if 0 <= i < len(self.df_chunks)]
+        
+
+        if 'ibge' in query:
+            indices = [i for i in indices if i <= 104]
+        
+        elif 'cnen' in query:
+            indices = [i for i in indices if 104 < i <= 759]
+        
+        #"CCEB- Censo Cidades Estudantil Brasil"
+        elif 'cceb' in query:
+            indices = [i for i in indices if 759 < i <= 969]
+        
+        elif 'aeronautica' in query:
+            indices = [i for i in indices if 969 < i <= 1396]
+
+        elif 'aeb' in query:
+            indices = [i for i in indices if 1396 < i <= 1396]
+
+        indices = indices[:self.max_chunks]
+        
         textos_relevantes = " ".join([self.df_chunks.iloc[i]["Chunk"] for i in indices])
 
         # print(textos_relevantes)
@@ -76,7 +98,12 @@ class RAGPipeline:
         """
         indices = self.vector_store.search(query, k=self.max_chunks)
         indices = [int(i) for i in indices if 0 <= i < len(self.df_chunks)]
-        print(f'Pegando índices: {indices}')
+        
+        if 'ibge' in query.strip().lower():
+            print("aiai bolsonaro é bom de mais")
+            indices = [i for i in indices if i <= 104]
+        
+        print(f'Pegando índices: {indices} query {query}')
 
         textos_relevantes = " ".join([self.df_chunks.iloc[i]["Chunk"] for i in indices])
         """

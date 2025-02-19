@@ -16,8 +16,10 @@ import tests_vars
 
 BASE_URL = "https://www.pciconcursos.com.br/concursos/nacional/"
 CSV_EDITAIS = "data/processed/editais_concursos.csv"
-CSV_CHUNKS = "data/processed/results_extraction_chunks.csv"
-INDEX_FAISS = "data/embeddings/faiss_index"
+CSV_CHUNKS = "data/processed/results_extraction_chunks_updated.csv"
+INDEX_FAISS = "data/embeddings/faiss_index_1"
+#CSV_CHUNKS = "data/processed/results_extraction_chunks.csv"
+# INDEX_FAISS = "data/embeddings/faiss_index"
 
 def etapa_1_scraper():
     """Baixa os PDFs dos editais e salva no CSV."""
@@ -38,10 +40,13 @@ def etapa_2_extracao():
     files = [
         "data/raw/ibge.txt",
         "data/extracted_pedro/cnen.txt",
-        "data/extracted_pedro/CCEB- Censo Cidades Estudantil Brasil.txt",
+        "data/extracted_pedro/cceb.txt",
         "data/extracted_pedro/aeronautica.txt",
-        "data/extracted_pedro/AEB-agencia-espacial-brasileira.txt",
+        "data/extracted_pedro/aeb.txt",
         "data/extracted_pedro/ibama.txt",
+        "data/extracted_pedro/funai.txt",
+        "data/extracted_pedro/trf.txt",
+        "data/extracted_pedro/marinha.txt"
     ]
 
     all_chunks = []
@@ -148,13 +153,15 @@ def etapa_4_testar_rag( ):
             perguntas.append(pergunta)
     """
     #print(perguntas)
-    perguntas = ["No concurco do ibge Quantas vagas estão sendo oferecidas no total e como elas estão distribuídas entre os municípios?",
+    perguntas = [
+                 "Qual é o cronograma completo do processo seletivo do ibge, desde as inscrições até a divulgação do resultado final?",
+                "No concurso do ibge Quantas vagas estão sendo oferecidas no total e como elas estão distribuídas entre os municípios?",
                  "Qual é a carga horária para as funções do concurso do ibge?",
                  "Qual é a remuneração mensal para as funções de Agente de Pesquisas e Mapeamento e Supervisor de Coleta e Qualidade?",
                  "Sovre o concurso do ibge Como e onde as inscrições devem ser realizadas?",
                  "Quais documentos são necessários para a inscrição e quais devem ser apresentados no momento da contratação do ibge?",
-                 "Qual é o cronograma completo do processo seletivo do ibge, desde as inscrições até a divulgação do resultado final?",
                  "Onde os candidatos podem obter informações adicionais sobre o processo seletivo do ibge?"]
+    
     for pergunta in perguntas:
         try:
             print(f"\n🔹 Pergunta: {pergunta}")
@@ -235,8 +242,8 @@ if __name__ == "__main__":
 
     #etapa_1_scraper()
     #etapa_2_extracao()
-    #etapa_3_embeddings()
-    etapa_4_testar_rag()
+    etapa_3_embeddings()
+    #etapa_4_testar_rag()
     #etapa_5_experimentos()
     #etapa_6_metricas()
     #etapa_7_avaliar_respostas()
