@@ -76,17 +76,17 @@ def processar_downloads_e_extração(csv_path, pasta_destino):
 
     return resultados
 
-def chunking_texto(file_path):
+def chunking_texto(file_path, normalized_text = False):
     #resultados = []
     with open(file_path, "r", encoding="utf-8") as arquivo:
         texto_completo = arquivo.read()
+        if normalized_text:
+            texto_completo = texto_completo.lower()
         chunks = dividir_em_chunks(texto_completo, file_path.split("/")[-1].replace(".txt", ""))
         #print(chunks)
         #resultados.append(chunks)
     
     return chunks
-
-    return resultados
 
 if __name__ == "__main__":
     csv_path = 'data/processed/editais_concursos.csv'

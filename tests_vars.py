@@ -10,8 +10,11 @@
 
 dict_models = {
     'ai_model' : 'mixtral-8x7b-32768',
+    'ai_model' : 'llama3-70b-8192',
     'embedding_model': 'thenlper/gte-large',
-    'labeled': False,
+    'labeled': True,
+    'normalized': False,
+    'stop-word': False,
     'chunk_size': 200,
     'chunk_overlap': 40,
     'topk': 15
