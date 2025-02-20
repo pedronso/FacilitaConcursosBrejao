@@ -125,38 +125,38 @@ perguntas = [
     "Qual o valor da remuneração e dos auxílios oferecidos para os cargos disponíveis no IBGE?",
 
     # Marinha
-    "Quais são os requisitos de idade e escolaridade para ingresso no Curso de Formação de Marinheiros?",
-    "Como será composta a Prova Escrita Objetiva e quais os critérios de aprovação?",
-    "Como funciona o Teste de Aptidão Física de Ingresso (TAF-i) para os candidatos?",
-    "Quais são as cidades onde serão realizadas as provas e eventos complementares do concurso?",
+    "Quais são os requisitos de idade e escolaridade para ingresso na marinha?",
+    "Como será composta a Prova Escrita Objetiva e quais os critérios de aprovação para o concurso da marinha?",
+    "Como funciona o Teste de Aptidão Física de Ingresso (TAF-i) para os candidatos no concurso da marinha?",
+    "Quais são as cidades onde serão realizadas as provas e eventos complementares do concurso da marinha?",
 
     # MPU
     "Quais os cargos disponíveis no concurso do MPU e quantas vagas são oferecidas?",
-    "Como será composta a prova objetiva e quais são os critérios de classificação e eliminação?",
+    "Como será composta a prova objetiva e quais são os critérios de classificação e eliminação do concurso do mpu?",
     "Quais são os requisitos mínimos para investidura nos cargos do MPU?",
-    "Qual o prazo de validade do concurso e se pode ser prorrogado?",
+    "Qual o prazo de validade do concurso do mpu e se pode ser prorrogado?",
 
     # TRF
-    "Quantas vagas estão disponíveis para o cargo de Juiz Federal Substituto no TRF5?",
-    "Como será estruturada a prova oral e quais os critérios de avaliação?",
-    "Quais são os requisitos mínimos exigidos para concorrer ao cargo de Juiz Federal Substituto?",
-    "Quais etapas compõem o concurso e como funciona o sistema de classificação?",
+    "Quantas vagas estão disponíveis para o cargo de Juiz Federal Substituto no TRF?",
+    "Como será estruturada a prova oral e quais os critérios de avaliação para o concurso do TRF?",
+    "Quais são os requisitos mínimos exigidos para concorrer ao cargo de Juiz Federal Substituto do TRF?",
+    "Quais etapas compõem o concurso do trf e como funciona o sistema de classificação?",
 
     # AEB
     "Quais os cargos oferecidos no concurso da AEB e quais os requisitos para cada um?",
-    "Como será composta a prova objetiva e quais são os critérios de eliminação?",
+    "Como será composta a prova objetiva e quais são os critérios de eliminação da AEB?",
     "Quais cidades aplicarão as provas do concurso da AEB?",
     "Qual é a jornada de trabalho e o valor da remuneração dos cargos da AEB?",
 
     # Aeronáutica
     "Qual a idade máxima permitida para ingresso no Curso de Formação de Sargentos da Aeronáutica?",
-    "Como funciona o processo de escolha da especialidade dentro do curso?",
-    "Quais são os critérios de aprovação no Teste de Aptidão Física?",
+    "Como funciona o processo de escolha da especialidade dentro do curso da aeronáutica?",
+    "Quais são os critérios de aprovação no Teste de Aptidão Física aeronáutica?",
     "Quais são as etapas do concurso para ingresso na Aeronáutica?",
 
     # CCEB
     "Quais são os cargos oferecidos no concurso do CCEB e quais os requisitos mínimos?",
-    "Como será composta a prova objetiva e qual o critério de classificação?",
+    "Como será composta a prova objetiva e qual o critério de classificação do CCEB?",
     "Quais estados terão vagas disponíveis para os cargos do CCEB?",
     "Qual a duração do contrato para os aprovados no concurso do CCEB?",
 
@@ -168,7 +168,7 @@ perguntas = [
 
     # IBAMA
     "Quais são os cargos oferecidos no concurso do IBAMA e quantas vagas estão disponíveis?",
-    "Como será composta a prova objetiva e quais são os critérios de classificação?",
+    "Como será composta a prova objetiva e quais são os critérios de classificação do concurso do IBAMA?",
     "Qual é a jornada de trabalho e a remuneração inicial para os cargos do IBAMA?",
     "Como será realizada a lotação dos aprovados no concurso do IBAMA?",
 ]
@@ -259,7 +259,7 @@ if __name__ == "__main__":
     #etapa_2_extracao()
     #etapa_3_embeddings()
     etapa_4_testar_rag()
-    #etapa_4_1_avaliar_rag()
+    etapa_4_1_avaliar_rag()
     #etapa_5_experimentos()
     #etapa_6_metricas()
 

@@ -31,9 +31,9 @@ class ResultVerifier:
                 if not 'avaliacoes' in value:
                     value['avaliacoes'] = {}
                 
-                # if _key in value['avaliacoes']:
-                #     print('nota dada, pulando')
-                #     continue
+                if _key in value['avaliacoes']:
+                    print('nota dada, pulando')
+                    continue
                 prompt = f'''avalie a seguinte pergunta e resposta:
         Pergunta: {_key}
         Resposta: {value['respostas'][_key]}'''

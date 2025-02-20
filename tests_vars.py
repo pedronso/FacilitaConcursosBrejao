@@ -9,7 +9,7 @@
 # mixtral-8x7b-32768
 
 dict_models = {
-    'ai_model' : 'deepseek-r1-distill-llama-70b',
+    'ai_model' : 'mixtral-8x7b-32768',
     'embedding_model': 'thenlper/gte-large',
     'labeled': True,
     'chunk_size': 200,
