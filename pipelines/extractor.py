@@ -1,9 +1,15 @@
 import os
 import pandas as pd
 from pdfminer.high_level import extract_text
-from langchain.text_splitter import RecursiveCharacterTextSplitter, TokenTextSplitter
+from langchain.text_splitter import TokenTextSplitter
 import re
+import nltk
+from nltk.corpus import stopwords
 from tests_vars import dict_models
+
+nltk.download('stopwords')
+
+STOPWORDS = set(stopwords.words('portuguese'))
 
 def extrair_texto_pdf(pdf_path):
     try:
@@ -76,15 +82,21 @@ def processar_downloads_e_extração(csv_path, pasta_destino):
 
     return resultados
 
-def chunking_texto(file_path, normalized_text = False):
-    #resultados = []
+def remover_stopwords(texto):
+    """Remove stopwords do texto extraído"""
+    palavras = texto.split()
+    texto_sem_stopwords = " ".join([palavra for palavra in palavras if palavra.lower() not in STOPWORDS])
+    return texto_sem_stopwords
+
+def chunking_texto(file_path, normalized_text=dict_models["normalized"], remove_stopwords=dict_models["stop-word"]):
+    """Lê o texto de um arquivo, remove stopwords (se ativado) e divide em chunks."""
     with open(file_path, "r", encoding="utf-8") as arquivo:
         texto_completo = arquivo.read()
         if normalized_text:
             texto_completo = texto_completo.lower()
+        if remove_stopwords:
+            texto_completo = remover_stopwords(texto_completo)  # Removendo stopwords se ativado
         chunks = dividir_em_chunks(texto_completo, file_path.split("/")[-1].replace(".txt", ""))
-        #print(chunks)
-        #resultados.append(chunks)
     
     return chunks
 

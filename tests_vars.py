@@ -9,10 +9,10 @@
 # mixtral-8x7b-32768
 
 dict_models = {
-    'ai_model' : 'mixtral-8x7b-32768',
+   # 'ai_model' : 'mixtral-8x7b-32768',
     'ai_model' : 'llama3-70b-8192',
     'embedding_model': 'thenlper/gte-large',
-    'labeled': True,
+    'labeled': False,
     'normalized': False,
     'stop-word': False,
     'chunk_size': 200,
