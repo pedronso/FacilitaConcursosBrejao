@@ -143,23 +143,23 @@ class RAGPipeline:
     def filtrar_indices_por_concurso(self, indices, query):
         """Filtra os índices com base no concurso mencionado na query."""
         if 'ibge' in query:
-            indices = [i for i in indices if i <= 104]
+            indices = [i for i in indices if i <= 84]
         elif 'cnen' in query:
-            indices = [i for i in indices if 104 < i <= 759]
+            indices = [i for i in indices if 84 < i <= 608]
         elif 'cceb' in query:
-            indices = [i for i in indices if 759 < i <= 969]
+            indices = [i for i in indices if 608 < i <= 776]
         elif 'aeronautica' in query:
-            indices = [i for i in indices if 969 < i <= 1396]
+            indices = [i for i in indices if 776 < i <= 1118]
         elif 'aeb' in query:
-            indices = [i for i in indices if 1396 < i <= 1787]
+            indices = [i for i in indices if 1118 < i <= 1431]
         elif 'ibama' in query:
-            indices = [i for i in indices if 1787 < i <= 2272]
+            indices = [i for i in indices if 1431 < i <= 1819]
         elif 'funai' in query:
-            indices = [i for i in indices if 2272 < i <= 2579]
+            indices = [i for i in indices if 1819 < i <= 2065]
         elif 'trf' in query:
-            indices = [i for i in indices if 2579 < i <= 3075]
+            indices = [i for i in indices if 2065 < i <= 2462]
         elif 'marinha' in query:
-            indices = [i for i in indices if 3075 < i <= 3522]
+            indices = [i for i in indices if 2462 < i <= 2821]
         
         return indices[:self.max_chunks]
 
