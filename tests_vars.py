@@ -11,7 +11,7 @@
 dict_models = {
     'ai_model' : 'mixtral-8x7b-32768',
     'embedding_model': 'thenlper/gte-large',
-    'labeled': True,
+    'labeled': False,
     'chunk_size': 200,
     'chunk_overlap': 40,
     'topk': 15

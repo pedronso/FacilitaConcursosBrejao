@@ -259,7 +259,7 @@ if __name__ == "__main__":
     #etapa_2_extracao()
     #etapa_3_embeddings()
     etapa_4_testar_rag()
-    etapa_4_1_avaliar_rag()
+    # etapa_4_1_avaliar_rag()
     #etapa_5_experimentos()
     #etapa_6_metricas()
 
