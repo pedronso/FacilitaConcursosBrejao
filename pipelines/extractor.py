@@ -88,6 +88,12 @@ def remover_stopwords(texto):
     texto_sem_stopwords = " ".join([palavra for palavra in palavras if palavra.lower() not in STOPWORDS])
     return texto_sem_stopwords
 
+def aplicar_stemming(texto):
+    """Aplica stemming às palavras do texto"""
+    palavras = texto.split()
+    texto_stemmed = " ".join([STEMMER.stem(palavra) for palavra in palavras])
+    return texto_stemmed
+
 def chunking_texto(file_path, normalized_text=dict_models["normalized"], remove_stopwords=dict_models["stop-word"]):
     """Lê o texto de um arquivo, remove stopwords (se ativado) e divide em chunks."""
     with open(file_path, "r", encoding="utf-8") as arquivo:

@@ -9,13 +9,13 @@
 # mixtral-8x7b-32768
 
 dict_models = {
-   # 'ai_model' : 'mixtral-8x7b-32768',
     'ai_model' : 'llama3-70b-8192',
+    #'ai_model' : 'deepseek-r1-distill-llama-70b',
     'embedding_model': 'thenlper/gte-large',
     'labeled': False,
     'normalized': False,
     'stop-word': False,
     'chunk_size': 200,
-    'chunk_overlap': 40,
+    'chunk_overlap': 0,
     'topk': 15
 }

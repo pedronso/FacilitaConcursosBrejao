@@ -256,10 +256,10 @@ if __name__ == "__main__":
     start_time = time.time()
 
     #etapa_1_scraper()
-    #etapa_2_extracao()
-    #etapa_3_embeddings()
-    #etapa_4_testar_rag()
-    etapa_4_1_avaliar_rag()
+    etapa_2_extracao()
+    etapa_3_embeddings()
+    etapa_4_testar_rag()
+    #etapa_4_1_avaliar_rag()
     #etapa_5_experimentos()
     #etapa_6_metricas()
 
