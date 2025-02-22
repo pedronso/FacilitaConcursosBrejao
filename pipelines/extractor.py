@@ -103,7 +103,7 @@ def chunking_texto(file_path, normalized_text=dict_models["normalized"], remove_
         if remove_stopwords:
             texto_completo = remover_stopwords(texto_completo)  # Removendo stopwords se ativado
         chunks = dividir_em_chunks(texto_completo, file_path.split("/")[-1].replace(".txt", ""))
-    
+        print(len(chunks))
     return chunks
 
 if __name__ == "__main__":

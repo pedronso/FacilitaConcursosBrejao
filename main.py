@@ -55,6 +55,9 @@ def etapa_2_extracao():
         chunks = chunking_texto(file)
         all_chunks.extend(chunks)  # Add chunks from each file to the list
 
+    print("chunks!!: \n")
+    print(len(chunks))
+    print("\n\n")
     # Create DataFrame with one chunk per row
     df_resultados = pd.DataFrame({"Chunk": all_chunks})
     df_resultados.to_csv(CSV_CHUNKS, index=False)
@@ -259,7 +262,7 @@ if __name__ == "__main__":
     etapa_2_extracao()
     etapa_3_embeddings()
     etapa_4_testar_rag()
-    #etapa_4_1_avaliar_rag()
+    etapa_4_1_avaliar_rag()
     #etapa_5_experimentos()
     #etapa_6_metricas()
 

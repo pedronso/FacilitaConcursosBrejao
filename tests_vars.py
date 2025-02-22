@@ -10,7 +10,6 @@
 
 dict_models = {
     'ai_model' : 'llama3-70b-8192',
-    #'ai_model' : 'deepseek-r1-distill-llama-70b',
     'embedding_model': 'thenlper/gte-large',
     'labeled': False,
     'normalized': False,
