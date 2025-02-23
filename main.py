@@ -269,14 +269,14 @@ if __name__ == "__main__":
     #etapa_5_experimentos()
     #etapa_6_metricas()
 
-    print("🚀 Criando estrutura de diretórios...")
-    criar_pastas()
+    #print("🚀 Criando estrutura de diretórios...")
+    #criar_pastas()
 
     print("🔹 Gerando chunks...")
     processar_chunks()
 
-    print("🧠 Criando índices FAISS...")
-    criar_faiss_index()
+    #print("🧠 Criando índices FAISS...")
+    #criar_faiss_index()
 
     print("✅ Todos os processos finalizados!")
 

@@ -41,7 +41,7 @@ class FAISSVectorStore:
         csv_path = "data/processed/results_extraction_chunks.csv"
         if os.path.exists(csv_path):
             df_chunks = pd.read_csv(csv_path)
-            self.create_index(df_chunks["Chunks"].tolist())
+            self.create_index(df_chunks["Chunk"].tolist())
         else:
             print("❌ Erro: Nenhum arquivo de chunks encontrado. Rode `extractor.py` primeiro.")
 
