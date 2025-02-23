@@ -4,7 +4,9 @@ import pandas as pd
 from generate.generate_chunks import processar_chunks
 from generate.generate_faiss import criar_faiss_index, criar_faiss_index_unit
 from generate.generate_folders import criar_pastas
+from generate.generate_metadata import atualizar_metadados
 from generate.generate_responses import gerar_respostas
+from generate.verify_embedding_models import verificar_modelos_de_embeddings
 from pipelines.scraper import fetch_edital_links
 from pipelines.extractor import processar_downloads_e_extração, chunking_texto
 from models.embeddings_model import EmbeddingModel
@@ -331,8 +333,7 @@ def executar_pipeline_completa():
     #processar_chunks()
 
     print("🧠 Criando índices FAISS...")
-    criar_faiss_index()
-
+    #criar_faiss_index()
 
     #print("\n🚀 Gerando respostas para todas as configurações...")
     #gerar_respostas()  # Chama diretamente a função de geração de respostas

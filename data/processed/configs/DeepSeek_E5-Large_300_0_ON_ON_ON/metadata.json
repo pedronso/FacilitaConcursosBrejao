@@ -1,0 +1,5 @@
+{
+    "model_name": "E5-Large",
+    "total_chunks": 2001,
+    "faiss_index_path": "data/processed/configs/DeepSeek_E5-Large_300_0_ON_ON_ON/faiss_index_COMPLETED"
+}
