@@ -5,6 +5,7 @@ import pandas as pd
 from vectorstore.faiss_store import FAISSVectorStore
 from models.llm_model import LLMModel, LocalLLMModel
 import tests_vars
+from tests_vars import idx
 
 class RAGPipeline:
     def __init__(self, config_name, base_dir="data/processed/configs",
@@ -59,7 +60,20 @@ class RAGPipeline:
         
         # Filtra os índices pelo concurso correspondente
         indices_filtrados = self.filtrar_indices_por_concurso(indices, query_corrigida)
-        
+        concursos_limites = {
+            'aeb': (idx[0] - 1, idx[1]),
+            'aeronautica': (idx[1] + 1, idx[2]),
+            'cceb': (idx[2] + 1, idx[3]),
+            'cnen': (idx[3] + 1, idx[4]),
+            'funai': (idx[4] + 1, idx[5]),
+            'ibama': (idx[5] + 1, idx[6]),
+            'ibge': (idx[6] + 1, idx[7]),
+            'marinha': (idx[7] + 1, idx[8]),
+            'mpu': (idx[8] + 1, idx[9]),
+            'trf': (idx[9] + 1, 999999)
+        }
+        print(concursos_limites)
+        print('filtrar indice por concurso'*22)
         # Obtém os textos correspondentes aos índices filtrados
         textos_relevantes = self.obter_textos_relevantes(indices_filtrados)
 
@@ -80,7 +94,7 @@ class RAGPipeline:
             "funai": ["funai", "fundação nacional do índio"],
             "trf": ["trf", "tribunal regional federal"],
             "marinha": ["marinha", "força naval", "navy"],
-            #falta mpu
+            "mpu": ["mpu", "ministério público da união", "ministerio publico da uniao"]
         }
     
         query = query.lower()
@@ -107,11 +121,25 @@ class RAGPipeline:
 
     def filtrar_indices_por_concurso(self, indices, query):
         """Filtra os índices com base no concurso mencionado na query."""
+        # concursos_limites = {
+        #     'ibge': (0, idx[0]), 'cnen': (idx[0] + 1, idx[1]), 'cceb': (idx[1] + 1, idx[2]), 'aeronautica': (idx[2] + 1, idx[3]),
+        #     'aeb': (idx[3] + 1, idx[4]), 'ibama': (idx[4] + 1, idx[5]), 'funai': (idx[5] + 1, idx[6]), 'trf': (idx[6] + 1, 999999),
+        #     'marinha': (2463, 2821)
+        # }
         concursos_limites = {
-            'ibge': (0, 84), 'cnen': (85, 608), 'cceb': (609, 776), 'aeronautica': (777, 1118),
-            'aeb': (1119, 1431), 'ibama': (1432, 1819), 'funai': (1820, 2065), 'trf': (2066, 2462),
-            'marinha': (2463, 2821)
+            'aeb': (idx[0] - 1, idx[1]),
+            'aeronautica': (idx[1] + 1, idx[2]),
+            'cceb': (idx[2] + 1, idx[3]),
+            'cnen': (idx[3] + 1, idx[4]),
+            'funai': (idx[4] + 1, idx[5]),
+            'ibama': (idx[5] + 1, idx[6]),
+            'ibge': (idx[6] + 1, idx[7]),
+            'marinha': (idx[7] + 1, idx[8]),
+            'mpu': (idx[8] + 1, idx[9]),
+            'trf': (idx[9] + 1, 999999)
         }
+        print('bolsonaro chan entrando nos concursos')
+        print(concursos_limites)
 
         for concurso, (min_idx, max_idx) in concursos_limites.items():
             if concurso in query:

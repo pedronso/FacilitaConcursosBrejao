@@ -97,6 +97,7 @@ def aplicar_stemming(texto):
 
 def chunking_texto(file_path, labeled, normalized, remove_stopwords, chunk_size, chunk_overlap):
     """Processa o arquivo e cria chunks de acordo com os parâmetros."""
+    
     with open(file_path, "r", encoding="utf-8") as arquivo:
         texto_completo = arquivo.read()
         if normalized:

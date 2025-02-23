@@ -3,6 +3,7 @@ import json
 import time
 import pandas as pd
 from pipelines.rag import RAGPipeline
+import tests_vars
 
 CONFIGS_DIR = "data/processed/configs"
 RESULTS_DIR = "data/processed/respostas"
@@ -88,6 +89,7 @@ def gerar_respostas():
             print(f"⚠️ Ignorando configuração incompleta: {config_name}")
             continue
 
+        tests_vars.process_indexes(config_name)
         print(f"\n🚀 Testando configuração: {config_name}")
 
         start_time = time.time()

@@ -45,25 +45,29 @@ def etapa_2_extracao():
         "data/raw/ibge.txt",
     ]
     files = [
-        "data/extracted_pedro/ibge.txt",
-        "data/extracted_pedro/cnen.txt",
-        "data/extracted_pedro/cceb.txt",
-        "data/extracted_pedro/aeronautica.txt",
         "data/extracted_pedro/aeb.txt",
-        "data/extracted_pedro/ibama.txt",
+        "data/extracted_pedro/aeronautica.txt",
+        "data/extracted_pedro/cceb.txt",
+        "data/extracted_pedro/cnen.txt",
         "data/extracted_pedro/funai.txt",
+        "data/extracted_pedro/ibama.txt",
+        "data/extracted_pedro/ibge.txt",
+        "data/extracted_pedro/marinha.txt",
+        "data/extracted_pedro/mpu.txt",
         "data/extracted_pedro/trf.txt",
-        "data/extracted_pedro/marinha.txt"
-        #falta mpu
     ]
 
     all_chunks = []
     for file in files:
         chunks = chunking_texto(file)
+        index = len(all_chunks) + 1
+        print(index)
+        tests_vars.idx.append(index)
         all_chunks.extend(chunks)  # Add chunks from each file to the list
 
     print("chunks!!: \n")
-    print(len(chunks))
+    print(tests_vars.idx)
+    # print(len(chunks))
     print("\n\n")
     # Create DataFrame with one chunk per row
     df_resultados = pd.DataFrame({"Chunk": all_chunks})
@@ -309,6 +313,7 @@ def etapa_4_1_avaliar_rag():
     reviewer.review()
 
 
+
 def iniciar_interface():
     """Executa a interface Streamlit."""
     print("\n🚀 Iniciando interface web...")
@@ -337,8 +342,9 @@ def executar_pipeline_completa():
     #criar_faiss_index()
 
     #print("\n🚀 Gerando respostas para todas as configurações...")
-    #gerar_respostas()  # Chama diretamente a função de geração de respostas
+    gerar_respostas()  # Chama diretamente a função de geração de respostas
 
+    return
     print("\n📊 Avaliando as respostas geradas...")
     verifier = ResultVerifier()
     verifier.review_new_structure()  # Avalia respostas na nova estrutura
