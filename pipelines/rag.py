@@ -80,6 +80,7 @@ class RAGPipeline:
             "funai": ["funai", "fundação nacional do índio"],
             "trf": ["trf", "tribunal regional federal"],
             "marinha": ["marinha", "força naval", "navy"],
+            #falta mpu
         }
     
         query = query.lower()
