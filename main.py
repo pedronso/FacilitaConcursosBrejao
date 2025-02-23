@@ -231,7 +231,7 @@ def etapa_4_testar_rag():
 
         # Salvar resultados específicos dessa configuração
         results_filename = f"{RESULTS_DIR}/{config_name}_results.json"
-        with open(results_filename, "w") as f:
+        with open(results_filename, "w", encoding="utf-8") as f:
             json.dump(perguntas_respostas_dict, f, indent=4)
 
         print(f"📁 Resultados salvos em: {results_filename}")
@@ -342,7 +342,7 @@ def executar_pipeline_completa():
     #criar_faiss_index()
 
     #print("\n🚀 Gerando respostas para todas as configurações...")
-    gerar_respostas()  # Chama diretamente a função de geração de respostas
+    # gerar_respostas()  # Chama diretamente a função de geração de respostas
 
     
     print("\n📊 Avaliando as respostas geradas...")

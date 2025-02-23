@@ -23,7 +23,7 @@ def processar_chunks():
             print(f"✅ Chunks já existem para {pasta}, pulando...")
             continue
 
-        with open(caminho_config, "r") as file:
+        with open(caminho_config, "r", encoding='utf-8') as file:
             config = json.load(file)
 
         arquivos = [os.path.join(TEXTOS_PATH, f) for f in os.listdir(TEXTOS_PATH) if f.endswith(".txt")]

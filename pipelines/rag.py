@@ -104,7 +104,7 @@ class RAGPipeline:
     def buscar_indices_no_faiss(self, query):
         """Realiza a busca no FAISS e retorna os índices encontrados."""
         query = query.strip().lower()
-        indices = self.vector_store.search(query, 50)
+        indices = self.vector_store.search(query, 100)
         return [int(i) for i in indices if 0 <= i < len(self.df_chunks)]
 
     def filtrar_indices_por_concurso(self, indices, query):

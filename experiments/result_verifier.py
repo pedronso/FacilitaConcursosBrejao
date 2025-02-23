@@ -41,10 +41,10 @@ class ResultVerifier:
                 total_avaliacoes = 0
                 avaliacoes = {}
 
-                for pergunta, resposta, i in respostas.items():
+                for pergunta, resposta in respostas.items():
                     print(f"🔍 Avaliando resposta: {pergunta}")
 
-                    prompt = f"[{i}] Avalie a seguinte pergunta e resposta:\n\n**Pergunta:** {pergunta}\n**Resposta:** {resposta}"
+                    prompt = f"Avalie a seguinte pergunta e resposta:\n\n**Pergunta:** {pergunta}\n**Resposta:** {resposta}"
                     avaliacao = self.llm_reviewer.generate_response(prompt)
 
                     # Extrai apenas o número da nota
@@ -53,11 +53,11 @@ class ResultVerifier:
                     avaliacoes[pergunta] = nota
                     media_total += nota
                     total_avaliacoes += 1
-                    print("\nmedia total atual: ", media_total)
+                    print("\nnota total atual: ", nota)
 
                 # Calcula a média geral
                 media_final = media_total / total_avaliacoes if total_avaliacoes > 0 else 0
-                print("\n✅✅✅ media total FINAL: ", media_total)
+                print("\n✅✅✅ media FINAL: ", media_final)
 
                 # Salva as métricas no arquivo correspondente
                 resultado_final = {"avaliacoes": avaliacoes, "media": media_final}

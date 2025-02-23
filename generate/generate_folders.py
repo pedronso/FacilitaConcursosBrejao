@@ -41,7 +41,7 @@ def criar_pastas():
             print(f"📂 Criado: {caminho}")
             
             # Salvar as configurações dentro da pasta
-            with open(os.path.join(caminho, "config.json"), "w") as config_file:
+            with open(os.path.join(caminho, "config.json"), "w", encoding='utf-8') as config_file:
                 json.dump(config, config_file, indent=4)
         else:
             print(f"✅ Já existe: {caminho}")
