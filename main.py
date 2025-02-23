@@ -2,8 +2,9 @@ import os
 import time
 import pandas as pd
 from generate.generate_chunks import processar_chunks
-from generate.generate_faiss import criar_faiss_index
+from generate.generate_faiss import criar_faiss_index, criar_faiss_index_unit
 from generate.generate_folders import criar_pastas
+from generate.generate_responses import gerar_respostas
 from pipelines.scraper import fetch_edital_links
 from pipelines.extractor import processar_downloads_e_extração, chunking_texto
 from models.embeddings_model import EmbeddingModel
@@ -179,7 +180,59 @@ perguntas = [
     "Como será realizada a lotação dos aprovados no concurso do IBAMA?",
 ]
 
+CONFIGS_DIR = "data/processed/configs/"
+RESULTS_DIR = "data/processed/results/"
+
 def etapa_4_testar_rag():
+    """Executa testes no chatbot RAG para todas as configurações geradas."""
+    if not os.path.exists(CONFIGS_DIR):
+        print(f"❌ Diretório de configurações não encontrado: {CONFIGS_DIR}")
+        return
+
+    # Criar diretório de resultados se não existir
+    os.makedirs(RESULTS_DIR, exist_ok=True)
+
+    # Iterar sobre cada configuração disponível
+    for config_name in os.listdir(CONFIGS_DIR):
+        config_path = os.path.join(CONFIGS_DIR, config_name, "config.json")
+        chunks_path = os.path.join(CONFIGS_DIR, config_name, "chunks.csv")
+        faiss_path = os.path.join(CONFIGS_DIR, config_name, "faiss_index")
+
+        if not os.path.exists(config_path) or not os.path.exists(chunks_path) or not os.path.exists(faiss_path):
+            print(f"⚠️ Ignorando configuração incompleta: {config_name}")
+            continue
+
+        print(f"\n🔍 Testando configuração: {config_name}")
+
+        # Criar pipeline RAG com caminhos específicos para essa configuração
+        rag = RAGPipeline(
+            faiss_index_path=faiss_path,
+            chunks_csv_path=chunks_path
+        )
+
+        perguntas_respostas_dict = {}
+
+        for pergunta in perguntas:
+            try:
+                print(f"\n🔹 Pergunta: {pergunta}")
+                resposta = rag.generate_answer(pergunta)
+                print(f"💬 Resposta: {resposta}")
+                perguntas_respostas_dict[pergunta] = str(resposta)
+
+            except Exception as e:
+                print(f"❌ Erro ao gerar resposta para '{pergunta}': {e}")
+
+        # Salvar resultados específicos dessa configuração
+        results_filename = f"{RESULTS_DIR}/{config_name}_results.json"
+        with open(results_filename, "w") as f:
+            json.dump(perguntas_respostas_dict, f, indent=4)
+
+        print(f"📁 Resultados salvos em: {results_filename}")
+
+    print("\n✅ Testes concluídos para todas as configurações!")
+
+    
+def etapa_4_testar_rag_old():
     """Executa um teste no chatbot RAG."""
     print("\n🤖 [4/6] Testando consultas ao sistema RAG...")
     
@@ -258,7 +311,9 @@ def iniciar_interface():
     print("\n🚀 Iniciando interface web...")
     os.system("streamlit run ui/app.py")
 
-if __name__ == "__main__":
+
+def executar_pipeline_completa():
+    """Executa todas as etapas na ordem correta."""
     start_time = time.time()
 
     #etapa_1_scraper()
@@ -278,11 +333,22 @@ if __name__ == "__main__":
     print("🧠 Criando índices FAISS...")
     criar_faiss_index()
 
-    print("✅ Todos os processos finalizados!")
 
-    
+    print("\n🚀 Gerando respostas para todas as configurações...")
+    gerar_respostas()  # Chama diretamente a função de geração de respostas
+
+    print("\n📊 Avaliando as respostas geradas...")
+    verifier = ResultVerifier()
+    verifier.review_new_structure()  # Avalia respostas na nova estrutura
+
+    print("\n✅ Processos finalizados!")
+
     total_time = time.time() - start_time
     print(f"\n⏳ Tempo total de execução: {total_time:.2f} segundos.")
 
     if "--ui" in sys.argv:
         iniciar_interface()
+        
+if __name__ == "__main__":
+    executar_pipeline_completa()
+

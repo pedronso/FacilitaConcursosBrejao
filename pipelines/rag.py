@@ -8,7 +8,9 @@ import pandas as pd
 import tests_vars
 
 class RAGPipeline:
-    def __init__(self, max_tokens_per_request=2500, max_chunks=tests_vars.dict_models["topk"], tokens_per_minute_limit=6000):
+    def __init__(self, faiss_index_path="data/embeddings/faiss_index_1", 
+                 chunks_csv_path="data/processed/results_extraction_chunks.csv",
+                 max_tokens_per_request=2500, max_chunks=tests_vars.dict_models["topk"], tokens_per_minute_limit=6000):
         """
         Inicializa a pipeline RAG.
         - max_tokens_per_request: número máximo de tokens enviados para o LLM por requisição.
@@ -16,10 +18,12 @@ class RAGPipeline:
         - tokens_per_minute_limit: limite de tokens por minuto imposto pela API.
         """
         self.local_model = LocalLLMModel()
-        self.vector_store = FAISSVectorStore()
+        self.vector_store = FAISSVectorStore(index_path=faiss_index_path) #atualizar caminhos output de acordo com as novas configs
         self.vector_store.load_index()
+        
         self.llm = LLMModel()
-        self.df_original = pd.read_csv("data/processed/results_extraction_chunks.csv")
+        
+        self.df_original = pd.read_csv(chunks_csv_path)
         self.df_chunks = self.df_original.dropna().reset_index(drop=True)
         #self.df_chunks = self.df_original.melt(var_name="Chunk_Index", value_name="Chunk").dropna().reset_index(drop=True)
 
