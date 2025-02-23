@@ -67,46 +67,55 @@ perguntas = [
 
 
 def gerar_respostas():
-    """Executa testes para todas as configurações e salva respostas."""
+    """Executa a RAG para todas as configurações e salva respostas."""
     if not os.path.exists(CONFIGS_DIR):
         print(f"❌ Diretório de configurações não encontrado: {CONFIGS_DIR}")
         return
 
     for config_name in sorted(os.listdir(CONFIGS_DIR)): 
-        config_path = os.path.join(CONFIGS_DIR, config_name, "config.json")
-        chunks_path = os.path.join(CONFIGS_DIR, config_name, "chunks.csv")
-        faiss_path = os.path.join(CONFIGS_DIR, config_name, "faiss_index")
+        config_path = os.path.join(CONFIGS_DIR, config_name)
+        chunks_path = os.path.join(config_path, "chunks.csv")
+        faiss_path = os.path.join(config_path, "faiss_index_COMPLETED")
+        results_filename = os.path.join(RESULTS_DIR, f"{config_name}_respostas.json")
 
-        if not os.path.exists(config_path) or not os.path.exists(chunks_path) or not os.path.exists(faiss_path):
+        # Se já há respostas para essa configuração, pula
+        if os.path.exists(results_filename):
+            print(f"🔹 Respostas para {config_name} já geradas, pulando...")
+            continue
+
+        # Verificar se os arquivos necessários existem
+        if not os.path.exists(chunks_path) or not os.path.exists(faiss_path):
             print(f"⚠️ Ignorando configuração incompleta: {config_name}")
             continue
 
-        print(f"\n🔍 Testando configuração: {config_name}")
+        print(f"\n🚀 Testando configuração: {config_name}")
 
-        # criar pipeline RAG apontando para essa configuracao especifica
-        rag = RAGPipeline(
-            faiss_index_path=faiss_path,
-            chunks_csv_path=chunks_path
-        )
+        start_time = time.time()
+
+        try:
+            rag = RAGPipeline(config_name)
+        except FileNotFoundError as e:
+            print(f"❌ Erro ao carregar configuração {config_name}: {e}")
+            continue
 
         perguntas_respostas_dict = {}
 
-        for pergunta in perguntas:
+        for i, pergunta in enumerate(perguntas, 1):
             try:
-                print(f"\n🔹 Pergunta: {pergunta}")
+                print(f"\n🔹 [{i}/{len(perguntas)}] Pergunta: {pergunta}")
                 resposta = rag.generate_answer(pergunta)
                 print(f"💬 Resposta: {resposta}")
                 perguntas_respostas_dict[pergunta] = str(resposta)
-
             except Exception as e:
                 print(f"❌ Erro ao gerar resposta para '{pergunta}': {e}")
+                perguntas_respostas_dict[pergunta] = f"Erro ao gerar resposta: {e}"
 
-        # salvar respostas dessa config
-        results_filename = f"{RESULTS_DIR}/{config_name}_respostas.json"
+        # Salvar respostas dessa configuração
         with open(results_filename, "w") as f:
             json.dump(perguntas_respostas_dict, f, indent=4)
 
         print(f"📁 Respostas salvas em: {results_filename}")
+        print(f"⏳ Tempo total para {config_name}: {time.time() - start_time:.2f} segundos.")
 
     print("\n✅ Geração de respostas concluída para todas as configurações!")
 

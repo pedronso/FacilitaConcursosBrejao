@@ -1,0 +1,5 @@
+{
+    "model_name": "E5-Large",
+    "total_chunks": 2945,
+    "faiss_index_path": "data/processed/configs/LLaMA-3_E5-Large_300_60_OFF_OFF_OFF/faiss_index"
+}

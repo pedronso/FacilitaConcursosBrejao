@@ -1,0 +1,5 @@
+{
+    "model_name": "GTE-Large",
+    "total_chunks": 1503,
+    "faiss_index_path": "data/processed/configs/LLaMA-3_GTE-Large_400_0_ON_ON_ON/faiss_index"
+}

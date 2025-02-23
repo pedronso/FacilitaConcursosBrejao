@@ -1,7 +1,7 @@
 # thenlper/gte-large quase | bom
 # sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 | mais ou menos
 # intfloat/multilingual-e5-base | ruim
-# intfloat/e5-large-v2 | 
+# intfloat/e5-large-v2 | bom
 
 
 # llama3-70b-8192
@@ -9,7 +9,19 @@
 # mixtral-8x7b-32768
 
 dict_models = {
-    'ai_model' : 'llama3-70b-8192',
+    'ai_model': 'llama3-70b-8192',
+    'embedding_model': 'thenlper/gte-large', 
+    'labeled': False,
+    'normalized': False,  
+    'stop-word': False,  
+    'chunk_size': 200,  
+    'chunk_overlap': 0, 
+    'topk': 15 
+}
+
+# Fallbacks para evitar erros caso alguma chave falte
+DEFAULTS = {
+    'ai_model': 'llama3-70b-8192',
     'embedding_model': 'thenlper/gte-large',
     'labeled': False,
     'normalized': False,
@@ -18,3 +30,7 @@ dict_models = {
     'chunk_overlap': 0,
     'topk': 15
 }
+
+def get_model_var(key):
+    return dict_models.get(key, DEFAULTS.get(key))
+
