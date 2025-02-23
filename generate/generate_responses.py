@@ -113,7 +113,7 @@ def gerar_respostas():
                 perguntas_respostas_dict[pergunta] = f"Erro ao gerar resposta: {e}"
 
         # Salvar respostas dessa configuração
-        with open(results_filename, "w") as f:
+        with open(results_filename, "w", encoding="utf-8") as f:
             json.dump(perguntas_respostas_dict, f, indent=4)
 
         print(f"📁 Respostas salvas em: {results_filename}")

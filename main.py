@@ -344,7 +344,7 @@ def executar_pipeline_completa():
     #print("\n🚀 Gerando respostas para todas as configurações...")
     gerar_respostas()  # Chama diretamente a função de geração de respostas
 
-    return
+    
     print("\n📊 Avaliando as respostas geradas...")
     verifier = ResultVerifier()
     verifier.review_new_structure()  # Avalia respostas na nova estrutura

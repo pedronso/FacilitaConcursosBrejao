@@ -59,21 +59,9 @@ class RAGPipeline:
         indices = self.buscar_indices_no_faiss(query_corrigida)
         
         # Filtra os índices pelo concurso correspondente
+
         indices_filtrados = self.filtrar_indices_por_concurso(indices, query_corrigida)
-        concursos_limites = {
-            'aeb': (idx[0] - 1, idx[1]),
-            'aeronautica': (idx[1] + 1, idx[2]),
-            'cceb': (idx[2] + 1, idx[3]),
-            'cnen': (idx[3] + 1, idx[4]),
-            'funai': (idx[4] + 1, idx[5]),
-            'ibama': (idx[5] + 1, idx[6]),
-            'ibge': (idx[6] + 1, idx[7]),
-            'marinha': (idx[7] + 1, idx[8]),
-            'mpu': (idx[8] + 1, idx[9]),
-            'trf': (idx[9] + 1, 999999)
-        }
-        print(concursos_limites)
-        print('filtrar indice por concurso'*22)
+        
         # Obtém os textos correspondentes aos índices filtrados
         textos_relevantes = self.obter_textos_relevantes(indices_filtrados)
 
@@ -121,11 +109,6 @@ class RAGPipeline:
 
     def filtrar_indices_por_concurso(self, indices, query):
         """Filtra os índices com base no concurso mencionado na query."""
-        # concursos_limites = {
-        #     'ibge': (0, idx[0]), 'cnen': (idx[0] + 1, idx[1]), 'cceb': (idx[1] + 1, idx[2]), 'aeronautica': (idx[2] + 1, idx[3]),
-        #     'aeb': (idx[3] + 1, idx[4]), 'ibama': (idx[4] + 1, idx[5]), 'funai': (idx[5] + 1, idx[6]), 'trf': (idx[6] + 1, 999999),
-        #     'marinha': (2463, 2821)
-        # }
         concursos_limites = {
             'aeb': (idx[0] - 1, idx[1]),
             'aeronautica': (idx[1] + 1, idx[2]),
@@ -138,7 +121,6 @@ class RAGPipeline:
             'mpu': (idx[8] + 1, idx[9]),
             'trf': (idx[9] + 1, 999999)
         }
-        print('bolsonaro chan entrando nos concursos')
         print(concursos_limites)
 
         for concurso, (min_idx, max_idx) in concursos_limites.items():

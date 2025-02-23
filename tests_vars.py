@@ -42,7 +42,7 @@ def usar_chunking_text(texto,a,b,c,d,e):
     return chunking_texto(texto,a,b,c,d,e)
 
 def process_indexes(config_name:str) -> None:
-    idx = []
+    idx.clear()
     config = config_name.lower().split('_')[2:]
     chunk_size = int(config[0])
     chunk_overlap = int(config[1])
@@ -78,6 +78,6 @@ def process_indexes(config_name:str) -> None:
     for file in files:
         chunks = usar_chunking_text(file, label, normalization, stop_word, chunk_size, chunk_overlap)
         index = len(all_chunks) + 1
-        print(index)
+        print(index, idx)
         idx.append(index)
         all_chunks.extend(chunks)
