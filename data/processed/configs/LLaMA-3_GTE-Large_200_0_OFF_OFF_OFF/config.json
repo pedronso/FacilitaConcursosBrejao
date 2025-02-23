@@ -1,0 +1,10 @@
+{
+    "ID": "014",
+    "LLM": "LLaMA 3",
+    "Embedding": "GTE-Large",
+    "Chunk": 200,
+    "Overlap": 0,
+    "Label": "OFF",
+    "Normalization": "OFF",
+    "Stopwords": "OFF"
+}

@@ -1,0 +1,10 @@
+{
+    "ID": "012",
+    "LLM": "DeepSeek",
+    "Embedding": "GTE-Large",
+    "Chunk": 400,
+    "Overlap": 80,
+    "Label": "OFF",
+    "Normalization": "OFF",
+    "Stopwords": "OFF"
+}

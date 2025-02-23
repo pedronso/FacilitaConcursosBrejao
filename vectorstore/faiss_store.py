@@ -5,15 +5,16 @@ import pandas as pd
 from models.embeddings_model import EmbeddingModel
 
 class FAISSVectorStore:
+    def __init__(self, index_path):
+        """
+        Inicializa a classe para um índice FAISS específico.
+
+        Args:
+            index_path (str): Caminho do índice FAISS.
+        """
     def __init__(self, index_path="data/embeddings/faiss_index"):
         self.index_path = index_path
-
-        #se for rodar no ollama, pegar o modelo de embedding do ollama
         self.embedding_model = EmbeddingModel()
-        #if not off_line:
-        #else:
-        #    self.embedding_model = OllamaEmbeddingModel()
-
         self.index = None
 
         # Se o índice FAISS não existir, cria um novo
@@ -23,9 +24,8 @@ class FAISSVectorStore:
 
     def create_index(self, texts):
         """Cria um índice FAISS a partir de uma lista de textos."""
-        #print(f'embedding: {self.embedding_model.embedding_model}')
-        #print(texts)
-        print(len(texts))
+        print(f"🔹 Criando FAISS index em: {self.index_path}")
+        #print(len(texts))
         embeddings = [self.embedding_model.get_embedding(" ".join(text) if isinstance(text, list) else text) for text in texts]
         embeddings = np.array(embeddings, dtype=np.float32)
 

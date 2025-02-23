@@ -12,16 +12,17 @@ nltk.download('stopwords')
 STOPWORDS = set(stopwords.words('portuguese'))
 
 def extrair_texto_pdf(pdf_path):
+    """Extrai texto de um PDF."""
     try:
         texto = extract_text(pdf_path)
         return texto
     except Exception as e:
-        print(f"Erro ao extrair texto do PDF {pdf_path}: {e}")
+        print(f"❌ Erro ao extrair texto do PDF {pdf_path}: {e}")
         return ""
-
+    
 def limpar_texto(texto):
-    texto_limpo = re.sub(r'\s+', ' ', texto)
-    texto_limpo = texto_limpo.strip()
+    """Remove espaços e caracteres desnecessários do texto extraído."""
+    texto_limpo = re.sub(r'\s+', ' ', texto).strip()
     return texto_limpo
 
 def dividir_em_chunks(texto, rotulo, com_rotulo=dict_models['labeled'], tamanho_maximo=dict_models['chunk_size'], chunk_overlap=dict_models['chunk_overlap']):
@@ -83,7 +84,7 @@ def processar_downloads_e_extração(csv_path, pasta_destino):
     return resultados
 
 def remover_stopwords(texto):
-    """Remove stopwords do texto extraído"""
+    """Remove stopwords do texto extraído."""
     palavras = texto.split()
     texto_sem_stopwords = " ".join([palavra for palavra in palavras if palavra.lower() not in STOPWORDS])
     return texto_sem_stopwords
@@ -94,16 +95,18 @@ def aplicar_stemming(texto):
     texto_stemmed = " ".join([STEMMER.stem(palavra) for palavra in palavras])
     return texto_stemmed
 
-def chunking_texto(file_path, normalized_text=dict_models["normalized"], remove_stopwords=dict_models["stop-word"]):
-    """Lê o texto de um arquivo, remove stopwords (se ativado) e divide em chunks."""
+def chunking_texto(file_path, labeled, normalized, remove_stopwords, chunk_size, chunk_overlap):
+    """Processa o arquivo e cria chunks de acordo com os parâmetros."""
     with open(file_path, "r", encoding="utf-8") as arquivo:
         texto_completo = arquivo.read()
-        if normalized_text:
+        if normalized:
             texto_completo = texto_completo.lower()
         if remove_stopwords:
-            texto_completo = remover_stopwords(texto_completo)  # Removendo stopwords se ativado
-        chunks = dividir_em_chunks(texto_completo, file_path.split("/")[-1].replace(".txt", ""))
-        print(len(chunks))
+            texto_completo = remover_stopwords(texto_completo)
+
+        text_splitter = TokenTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+        chunks = text_splitter.split_text(texto_completo)
+
     return chunks
 
 if __name__ == "__main__":

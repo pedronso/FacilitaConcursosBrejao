@@ -1,6 +1,9 @@
 import os
 import time
 import pandas as pd
+from generate.generate_chunks import processar_chunks
+from generate.generate_faiss import criar_faiss_index
+from generate.generate_folders import criar_pastas
 from pipelines.scraper import fetch_edital_links
 from pipelines.extractor import processar_downloads_e_extração, chunking_texto
 from models.embeddings_model import EmbeddingModel
@@ -259,13 +262,25 @@ if __name__ == "__main__":
     start_time = time.time()
 
     #etapa_1_scraper()
-    etapa_2_extracao()
-    etapa_3_embeddings()
-    etapa_4_testar_rag()
-    etapa_4_1_avaliar_rag()
+    #etapa_2_extracao()
+    #etapa_3_embeddings()
+    #etapa_4_testar_rag()
+    #etapa_4_1_avaliar_rag()
     #etapa_5_experimentos()
     #etapa_6_metricas()
 
+    print("🚀 Criando estrutura de diretórios...")
+    criar_pastas()
+
+    print("🔹 Gerando chunks...")
+    processar_chunks()
+
+    print("🧠 Criando índices FAISS...")
+    criar_faiss_index()
+
+    print("✅ Todos os processos finalizados!")
+
+    
     total_time = time.time() - start_time
     print(f"\n⏳ Tempo total de execução: {total_time:.2f} segundos.")
 
