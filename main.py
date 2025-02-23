@@ -332,11 +332,11 @@ def executar_pipeline_completa():
     #print("🔹 Gerando chunks...")
     #processar_chunks()
 
-    print("🧠 Criando índices FAISS...")
+    #print("🧠 Criando índices FAISS...")
     #criar_faiss_index()
 
-    #print("\n🚀 Gerando respostas para todas as configurações...")
-    #gerar_respostas()  # Chama diretamente a função de geração de respostas
+    print("\n🚀 Gerando respostas para todas as configurações...")
+    gerar_respostas()  # Chama diretamente a função de geração de respostas
 
     #print("\n📊 Avaliando as respostas geradas...")
     #verifier = ResultVerifier()
