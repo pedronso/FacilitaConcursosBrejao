@@ -3,7 +3,7 @@ import json
 from models.llm_model import LLMReviewerModel
 
 # Diretórios de entrada e saída
-RESULTS_DIR = "data/processed/respostas"
+RESULTS_DIR = "data/processed/respostas_utf8"
 METRICS_DIR = "data/processed/metricas"
 
 os.makedirs(RESULTS_DIR, exist_ok=True)
