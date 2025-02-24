@@ -1,6 +1,7 @@
 import streamlit as st
 import torch
 from pipelines.rag import RAGPipeline
+import tests_vars
 
 torch.classes.__path__ = []
 
@@ -18,7 +19,10 @@ for msg in st.session_state.messages:
 estado = st.toggle("Modo Local", value=False)
 
 query = st.chat_input("Digite sua pergunta...")
-rag = RAGPipeline()
+config_name = "DeepSeek_GTE-Large_200_40_ON_ON_ON"
+config_name = "LLaMA-3_GTE-Large_400_80_ON_ON_ON"
+rag = RAGPipeline(config_name)
+tests_vars.process_indexes(config_name)
 
 if query:
     st.session_state.messages.append({"role": "user", "content": query})
