@@ -45,7 +45,19 @@ class RAGPipeline:
         self.tokens_per_minute_limit = tokens_per_minute_limit
         self.tokens_used = 0
         self.start_time = time.time()
-
+        
+    def wait_if_needed(self, error_message):
+        """
+        Aguarda um tempo progressivo caso ocorra erro de rate limit.
+        - O primeiro erro causa um sleep de 30s.
+        - Cada novo erro aumenta o tempo de espera em +30s.
+        """
+        wait_time = 30
+        while "rate_limit_exceeded" in error_message:
+            print(f"⏳ Rate limit atingido. Aguardando {wait_time} segundos antes de tentar novamente...")
+            time.sleep(wait_time)
+            wait_time += 30  # Aumenta o tempo de espera progressivamente
+            
     def generate_answer(self, query):
         """Busca os chunks relevantes e gera resposta via LLM."""
         
@@ -65,8 +77,21 @@ class RAGPipeline:
         # Obtém os textos correspondentes aos índices filtrados
         textos_relevantes = self.obter_textos_relevantes(indices_filtrados)
 
-        # Gera a resposta usando o LLM
-        resposta = self.gerar_resposta_com_llm(query_corrigida, textos_relevantes)
+        # Definindo um valor padrão para evitar erro de variável não definida
+        resposta = "Não foi possível gerar uma resposta no momento."
+
+        while True:  # loop infinito para garantir que TODAS as respostas dos casos de teste sejam geradas.
+            try:
+                resposta = self.gerar_resposta_com_llm(query_corrigida, textos_relevantes)
+                break  # Sai do loop se a resposta for gerada com sucesso
+            except Exception as e:
+                error_msg = str(e)
+                print(f"❌ Erro ao gerar resposta para '{query}': {error_msg}")
+                if "rate_limit_exceeded" in error_msg:
+                    self.wait_if_needed(error_msg)  # aguardar 30sec + 30 + 30, antes de tentar novamente
+                else:
+                    resposta = f"Erro ao gerar resposta: {error_msg}"
+                    break  # Sai do loop se for um erro diferente do rate limit
 
         return resposta
 
