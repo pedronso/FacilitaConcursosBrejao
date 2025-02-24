@@ -344,7 +344,7 @@ def executar_pipeline_completa():
     #criar_faiss_index()
 
     print("\n🚀 Gerando respostas para todas as configurações...")
-    gerar_respostas()  # Chama diretamente a função de geração de respostas
+    #gerar_respostas()  # Chama diretamente a função de geração de respostas
 
     # Converter todos os JSONs para UTF-8 antes de processá-los
     process_all_json_files()
