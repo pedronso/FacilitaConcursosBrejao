@@ -14,7 +14,7 @@ from vectorstore.faiss_store import FAISSVectorStore
 from pipelines.rag import RAGPipeline
 from reports.metrics import avaliar_sistema
 from experiments.results_saver import save_results
-from experiments.result_verifier import ResultVerifier
+from experiments.result_verifier import METRICS_DIR, ResultVerifier
 import subprocess
 import sys
 import json
@@ -322,7 +322,7 @@ def iniciar_interface():
     os.system("streamlit run ui/app.py")
 
 
-def executar_pipeline_completa():
+def executar_pipeline_completa(filename=None):
     """Executa todas as etapas na ordem correta."""
     start_time = time.time()
 
@@ -351,7 +351,17 @@ def executar_pipeline_completa():
     
     #print("\n📊 Avaliando as respostas geradas...")
     verifier = ResultVerifier()
-    verifier.review_new_structure()  # Avalia respostas na nova estrutura
+    #verifier.review_new_structure()  # Avalia respostas na nova estrutura
+
+    print("\n📊 Reavaliando as médias geradas...")
+    if filename:
+        metric_filepath = os.path.join(METRICS_DIR, filename)
+        if os.path.exists(metric_filepath):
+            verifier.corrigir_media_arquivo(metric_filepath)
+        else:
+            print(f"⚠️ Arquivo {filename} não encontrado. Nenhuma correção aplicada.")
+    else:
+        verifier.corrigir_todas_as_medias()
 
     print("\n✅ Processos finalizados!")
 
@@ -360,7 +370,6 @@ def executar_pipeline_completa():
 
     if "--ui" in sys.argv:
         iniciar_interface()
-        
-if __name__ == "__main__":
-    executar_pipeline_completa()
 
+if __name__ == "__main__":
+    executar_pipeline_completa("DeepSeek_E5-Large_300_0_OFF_OFF_OFF_metricas_avaliado_com_llama3-8b.json")

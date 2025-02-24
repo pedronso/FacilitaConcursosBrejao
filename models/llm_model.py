@@ -42,6 +42,7 @@ CONFIG_MODEL_MAP = {
 # Lista de modelos de fallback para usar caso o modelo atual falhe.
 FALLBACK_MODELS = [
     "lama-3.3-70b-versatile",
+    "llama3-70b-8192",
     "llama-3.1-8b-instant",
     "llama3-8b-8192",
     "mixtral-8x7b-32768", 
@@ -196,7 +197,7 @@ class LocalLLMModel:
         return llm_response
 
 class LLMReviewerModel(LLMModel):
-    def __init__(self, config_name="llama3-8b-8192"):
+    def __init__(self, config_name="llama3-70b-8192"): #"llama3-70b-8192",
         super().__init__(config_name)
 
     def generate_response(self, prompt):
