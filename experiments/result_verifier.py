@@ -5,9 +5,11 @@ from models.llm_model import LLMReviewerModel
 # Diretórios de entrada e saída
 RESULTS_DIR = "data/processed/respostas_utf8"
 METRICS_DIR = "data/processed/metricas"
+MODELS_USED_DIR = os.path.join(METRICS_DIR, "modelos_usados")
 
 os.makedirs(RESULTS_DIR, exist_ok=True)
 os.makedirs(METRICS_DIR, exist_ok=True)
+os.makedirs(MODELS_USED_DIR, exist_ok=True)
 
 class ResultVerifier:
     def __init__(self):
@@ -17,6 +19,13 @@ class ResultVerifier:
         """Salva um dicionário como JSON no local especificado."""
         with open(filepath, "w", encoding="utf-8") as file:
             json.dump(data, file, indent=4, ensure_ascii=False)
+
+    def save_model_info(self, filename, model_name):
+        """Salva o modelo utilizado para avaliação das métricas."""
+        model_filepath = os.path.join(MODELS_USED_DIR, filename.replace("_metricas.json", "_modelo_usado.json"))
+        model_data = {"modelo_usado": model_name}
+        self.save_json(model_data, model_filepath)
+        print(f"📁 Modelo usado salvo em: {model_filepath}")
 
     def review_new_structure(self):
         """Avalia todas as respostas da nova estrutura e salva as métricas."""
@@ -39,6 +48,8 @@ class ResultVerifier:
                 media_total = 0
                 total_avaliacoes = 0
                 avaliacoes = {}
+
+                model_used = self.llm_reviewer.current_model  # Obtém o modelo atual usado
 
                 for pergunta, resposta in respostas.items():
                     print(f"🔍 Avaliando resposta: {pergunta}")
@@ -63,6 +74,9 @@ class ResultVerifier:
                 # Salva as métricas no arquivo correspondente
                 resultado_final = {"avaliacoes": avaliacoes, "media": media_final}
                 self.save_json(resultado_final, metric_filepath)
+
+                # Salva o modelo usado para esta avaliação
+                self.save_model_info(filename.replace("_respostas.json", "_metricas.json"), model_used)
 
                 print(f"📊 Arquivo avaliado: {filename} | Média: {media_final:.2f}")
                 print(f"📁 Métricas salvas em: {metric_filepath}")
@@ -91,8 +105,7 @@ class ResultVerifier:
         metricas["media"] = media_corrigida
 
         # Salva o arquivo corrigido
-        with open(filepath, "w", encoding="utf-8") as file:
-            json.dump(metricas, file, indent=4, ensure_ascii=False)
+        self.save_json(metricas, filepath)
 
         print(f"✅ Média corrigida: {media_corrigida:.2f} | Arquivo atualizado: {filepath}")
 

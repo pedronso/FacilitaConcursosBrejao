@@ -326,6 +326,7 @@ def executar_pipeline_completa(filename=None):
     """Executa todas as etapas na ordem correta."""
     start_time = time.time()
 
+    #flow antigo
     #etapa_1_scraper()
     #etapa_2_extracao()
     #etapa_3_embeddings()
@@ -334,6 +335,9 @@ def executar_pipeline_completa(filename=None):
     #etapa_5_experimentos()
     #etapa_6_metricas()
 
+
+
+    #flow novo
     #print("🚀 Criando estrutura de diretórios...")
     #criar_pastas()
 
@@ -353,15 +357,15 @@ def executar_pipeline_completa(filename=None):
     verifier = ResultVerifier()
     #verifier.review_new_structure()  # Avalia respostas na nova estrutura
 
-    print("\n📊 Reavaliando as médias geradas...")
-    if filename:
-        metric_filepath = os.path.join(METRICS_DIR, filename)
-        if os.path.exists(metric_filepath):
-            verifier.corrigir_media_arquivo(metric_filepath)
-        else:
-            print(f"⚠️ Arquivo {filename} não encontrado. Nenhuma correção aplicada.")
-    else:
-        verifier.corrigir_todas_as_medias()
+    #print("\n📊 Reavaliando as médias geradas...")
+    #if filename:
+    #    metric_filepath = os.path.join(METRICS_DIR, filename)
+    #    if os.path.exists(metric_filepath):
+    #        verifier.corrigir_media_arquivo(metric_filepath)
+    #    else:
+    #        print(f"⚠️ Arquivo {filename} não encontrado. Nenhuma correção aplicada.")
+    #else:
+    #    verifier.corrigir_todas_as_medias()
 
     print("\n✅ Processos finalizados!")
 
@@ -372,4 +376,4 @@ def executar_pipeline_completa(filename=None):
         iniciar_interface()
 
 if __name__ == "__main__":
-    executar_pipeline_completa("DeepSeek_E5-Large_300_0_OFF_OFF_OFF_metricas_avaliado_com_llama3-8b.json")
+    executar_pipeline_completa()
