@@ -35,7 +35,7 @@ load_dotenv()
 # Mapeamento de modelos com base no nome da pasta de configuração.
 CONFIG_MODEL_MAP = {
     "DeepSeek": "deepseek-r1-distill-llama-70b",
-    "LLaMA": "llama3-8b-8192",
+    "LLaMA": "llama3-70b-8192",
     "Mixtral": "mixtral-8x7b-32768",
 }
 
@@ -198,7 +198,8 @@ class LocalLLMModel:
 
 class LLMReviewerModel(LLMModel):
     def __init__(self, config_name="llama3-70b-8192"): #"llama3-70b-8192",
-        super().__init__(config_name)
+        model_name  = "llama3-70b-8192"
+        super().__init__(model_name )
 
     def generate_response(self, prompt):
         system = """Você é um avaliador de respostas. Sua tarefa é analisar a qualidade de uma resposta com base na pergunta feita e atribuir uma nota de 0 a 10, considerando os seguintes critérios:

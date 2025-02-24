@@ -50,7 +50,7 @@ class ResultVerifier:
                 avaliacoes = {}
 
                 model_used = self.llm_reviewer.current_model  
-
+                print("modelo atual do agente analista de respostas: ", model_used, "\n")
                 for pergunta, resposta in respostas.items():
                     print(f"🔍 Avaliando resposta: {pergunta}")
 

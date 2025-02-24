@@ -9,8 +9,9 @@
 # deepseek-r1-distill-llama-70b
 # mixtral-8x7b-32768
 #llama3-8b-8192
+
 dict_models = {
-    'ai_model': 'llama3-8b-8192',
+    'ai_model': 'llama3-70b-8192',
     'embedding_model': 'thenlper/gte-large', 
     'labeled': False,
     'normalized': False,  
