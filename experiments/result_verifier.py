@@ -15,8 +15,8 @@ class ResultVerifier:
 
     def save_json(self, data, filepath):
         """Salva um dicionário como JSON no local especificado."""
-        json_string = json.dumps(data, indent=4, ensure_ascii=False)
         with open(filepath, "w", encoding="utf-8") as file:
+            json_string = json.dumps(data, indent=4, ensure_ascii=False)
             file.write(json_string)
 
     def review_new_structure(self):

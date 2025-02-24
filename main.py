@@ -19,6 +19,8 @@ import subprocess
 import sys
 import json
 import tests_vars
+from convert_json_utf8 import process_all_json_files
+
 
 
 BASE_URL = "https://www.pciconcursos.com.br/concursos/nacional/"
@@ -341,9 +343,11 @@ def executar_pipeline_completa():
     #print("🧠 Criando índices FAISS...")
     #criar_faiss_index()
 
-    #print("\n🚀 Gerando respostas para todas as configurações...")
-    # gerar_respostas()  # Chama diretamente a função de geração de respostas
+    print("\n🚀 Gerando respostas para todas as configurações...")
+    gerar_respostas()  # Chama diretamente a função de geração de respostas
 
+    # Converter todos os JSONs para UTF-8 antes de processá-los
+    process_all_json_files()
     
     print("\n📊 Avaliando as respostas geradas...")
     verifier = ResultVerifier()
