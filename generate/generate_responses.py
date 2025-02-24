@@ -7,8 +7,12 @@ import tests_vars
 
 CONFIGS_DIR = "data/processed/configs"
 RESULTS_DIR = "data/processed/respostas"
+TIME_RESULTS_DIR = "data/processed/time_results"
+MODELS_USED_DIR = "data/processed/modelos_usados"
 
 os.makedirs(RESULTS_DIR, exist_ok=True)
+os.makedirs(TIME_RESULTS_DIR, exist_ok=True)
+os.makedirs(MODELS_USED_DIR, exist_ok=True)
 
 perguntas = [
     # IBGE
@@ -68,7 +72,7 @@ perguntas = [
 
 
 def gerar_respostas():
-    """Executa a RAG para todas as configurações e salva respostas."""
+    """Executa a RAG para todas as configurações, salva as respostas e os tempos de execução."""
     if not os.path.exists(CONFIGS_DIR):
         print(f"❌ Diretório de configurações não encontrado: {CONFIGS_DIR}")
         return
@@ -78,6 +82,8 @@ def gerar_respostas():
         chunks_path = os.path.join(config_path, "chunks.csv")
         faiss_path = os.path.join(config_path, "faiss_index_COMPLETED")
         results_filename = os.path.join(RESULTS_DIR, f"{config_name}_respostas.json")
+        time_filename = os.path.join(TIME_RESULTS_DIR, f"{config_name}_time_results.json")
+        models_filename = os.path.join(MODELS_USED_DIR, f"{config_name}_modelos_usados.json")
 
         # Se já há respostas para essa configuração, pula
         if os.path.exists(results_filename):
@@ -101,25 +107,59 @@ def gerar_respostas():
             continue
 
         perguntas_respostas_dict = {}
+        question_times = {}  # Tempo para cada pergunta
+        models_used = {}     # Modelo utilizado para cada pergunta
 
         for i, pergunta in enumerate(perguntas, 1):
+            print(f"\n🔹 [{i}/{len(perguntas)}] Pergunta: {pergunta}")
+            t0 = time.time()
             try:
-                print(f"\n🔹 [{i}/{len(perguntas)}] Pergunta: {pergunta}")
                 resposta = rag.generate_answer(pergunta)
-                print(f"💬 Resposta: {resposta}")
                 perguntas_respostas_dict[pergunta] = str(resposta)
+                # Extrai o modelo usado do prefixo da resposta
+                if resposta.startswith("[Model used:"):
+                    end_index = resposta.find("]")
+                    modelo = resposta[len("[Model used: "):end_index]
+                    models_used[pergunta] = modelo
+                else:
+                    models_used[pergunta] = "Modelo desconhecido"
+                print(f"💬 Resposta: {resposta}")
             except Exception as e:
-                print(f"❌ Erro ao gerar resposta para '{pergunta}': {e}")
-                perguntas_respostas_dict[pergunta] = f"Erro ao gerar resposta: {e}"
+                error_msg = str(e)
+                print(f"❌ Erro ao gerar resposta para '{pergunta}': {error_msg}")
+                perguntas_respostas_dict[pergunta] = f"Erro ao gerar resposta: {error_msg}"
+                models_used[pergunta] = "Erro"
+            t1 = time.time()
+            elapsed = t1 - t0
+            question_times[pergunta] = elapsed
+            print(f"⏱ Tempo para responder: {elapsed:.2f} segundos")
 
-        # Salvar respostas dessa configuração
+        total_time_questions = sum(question_times.values())
+        average_time = total_time_questions / len(question_times) if question_times else 0
+        time_results = {
+            "individual_times": question_times,
+            "total_time": total_time_questions,
+            "average_time": average_time
+        }
+
+        # Salvar respostas
         with open(results_filename, "w", encoding="utf-8") as f:
-            json.dump(perguntas_respostas_dict, f, indent=4)
-
+            json.dump(perguntas_respostas_dict, f, indent=4, ensure_ascii=False)
         print(f"📁 Respostas salvas em: {results_filename}")
+
+        # Salvar tempos de execução
+        with open(time_filename, "w", encoding="utf-8") as f:
+            json.dump(time_results, f, indent=4, ensure_ascii=False)
+        print(f"⏱ Tempos salvos em: {time_filename}")
+
+        # Salvar modelos usados
+        with open(models_filename, "w", encoding="utf-8") as f:
+            json.dump(models_used, f, indent=4, ensure_ascii=False)
+        print(f"📄 Modelos usados salvos em: {models_filename}")
+
         print(f"⏳ Tempo total para {config_name}: {time.time() - start_time:.2f} segundos.")
 
-    print("\n✅ Geração de respostas concluída para todas as configurações!")
+    print("\n✅ Geração de respostas, tempos e modelos concluída para todas as configurações!")
 
 if __name__ == "__main__":
     start_time = time.time()
