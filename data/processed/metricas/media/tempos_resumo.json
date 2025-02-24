@@ -1,0 +1,78 @@
+{
+    "Tempos_Detalhados": [
+        {
+            "ID": 1,
+            "Configuracao": "DeepSeek_E5-Large_300_0_OFF_OFF_OFF",
+            "Media_Tempo": 32.602400210168625
+        },
+        {
+            "ID": 2,
+            "Configuracao": "DeepSeek_E5-Large_300_0_ON_ON_ON",
+            "Media_Tempo": 22.087397886647118
+        },
+        {
+            "ID": 3,
+            "Configuracao": "DeepSeek_E5-Large_300_60_OFF_OFF_OFF",
+            "Media_Tempo": 21.11244664589564
+        },
+        {
+            "ID": 4,
+            "Configuracao": "DeepSeek_E5-Large_300_60_ON_ON_ON",
+            "Media_Tempo": 19.185519536336262
+        },
+        {
+            "ID": 5,
+            "Configuracao": "DeepSeek_GTE-Large_200_0_OFF_OFF_OFF",
+            "Media_Tempo": 21.97876465982861
+        },
+        {
+            "ID": 6,
+            "Configuracao": "DeepSeek_GTE-Large_200_0_ON_ON_ON",
+            "Media_Tempo": 24.032204409440357
+        },
+        {
+            "ID": 7,
+            "Configuracao": "DeepSeek_GTE-Large_200_40_OFF_OFF_OFF",
+            "Media_Tempo": 23.004737310939365
+        },
+        {
+            "ID": 8,
+            "Configuracao": "DeepSeek_GTE-Large_200_40_ON_ON_ON",
+            "Media_Tempo": 20.9323443836636
+        },
+        {
+            "ID": 9,
+            "Configuracao": "DeepSeek_GTE-Large_400_0_OFF_OFF_OFF",
+            "Media_Tempo": 28.993450575404697
+        },
+        {
+            "ID": 10,
+            "Configuracao": "DeepSeek_GTE-Large_400_0_ON_ON_ON",
+            "Media_Tempo": 31.006784352991318
+        },
+        {
+            "ID": 11,
+            "Configuracao": "DeepSeek_GTE-Large_400_80_OFF_OFF_OFF",
+            "Media_Tempo": 32.76898498667611
+        },
+        {
+            "ID": 12,
+            "Configuracao": "DeepSeek_GTE-Large_400_80_ON_ON_ON",
+            "Media_Tempo": 29.204789373609756
+        },
+        {
+            "ID": 13,
+            "Configuracao": "LLaMA-3_E5-Large_300_0_OFF_OFF_OFF",
+            "Media_Tempo": 18.500700182384914
+        },
+        {
+            "ID": 14,
+            "Configuracao": "LLaMA-3_E5-Large_300_0_ON_ON_ON",
+            "Media_Tempo": 30.586992263793945
+        }
+    ],
+    "Media_Geral": {
+        "DeepSeek": 25.57581869430012,
+        "LLaMA-3": 24.54384622308943
+    }
+}

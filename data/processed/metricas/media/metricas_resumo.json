@@ -1,0 +1,122 @@
+[
+    {
+        "ID": 1,
+        "Configuracao": "DeepSeek_E5-Large_300_0_OFF_OFF_OFF",
+        "Media": 8.833333333333334
+    },
+    {
+        "ID": 2,
+        "Configuracao": "DeepSeek_E5-Large_300_0_ON_ON_ON",
+        "Media": 6.638888888888889
+    },
+    {
+        "ID": 3,
+        "Configuracao": "DeepSeek_E5-Large_300_60_OFF_OFF_OFF",
+        "Media": 6.083333333333333
+    },
+    {
+        "ID": 4,
+        "Configuracao": "DeepSeek_E5-Large_300_60_ON_ON_ON",
+        "Media": 7.055555555555555
+    },
+    {
+        "ID": 5,
+        "Configuracao": "DeepSeek_GTE-Large_200_0_OFF_OFF_OFF",
+        "Media": 8.777777777777779
+    },
+    {
+        "ID": 6,
+        "Configuracao": "DeepSeek_GTE-Large_200_0_ON_ON_ON",
+        "Media": 8.75
+    },
+    {
+        "ID": 7,
+        "Configuracao": "DeepSeek_GTE-Large_200_40_OFF_OFF_OFF",
+        "Media": 7.916666666666667
+    },
+    {
+        "ID": 8,
+        "Configuracao": "DeepSeek_GTE-Large_200_40_ON_ON_ON",
+        "Media": 9.38888888888889
+    },
+    {
+        "ID": 9,
+        "Configuracao": "DeepSeek_GTE-Large_400_0_OFF_OFF_OFF",
+        "Media": 8.833333333333334
+    },
+    {
+        "ID": 10,
+        "Configuracao": "DeepSeek_GTE-Large_400_0_ON_ON_ON",
+        "Media": 8.13888888888889
+    },
+    {
+        "ID": 11,
+        "Configuracao": "DeepSeek_GTE-Large_400_80_OFF_OFF_OFF",
+        "Media": 8.583333333333334
+    },
+    {
+        "ID": 12,
+        "Configuracao": "DeepSeek_GTE-Large_400_80_ON_ON_ON",
+        "Media": 7.666666666666667
+    },
+    {
+        "ID": 13,
+        "Configuracao": "LLaMA-3_E5-Large_300_0_OFF_OFF_OFF",
+        "Media": 4.138888888888889
+    },
+    {
+        "ID": 14,
+        "Configuracao": "LLaMA-3_E5-Large_300_0_ON_ON_ON",
+        "Media": 9.166666666666666
+    },
+    {
+        "ID": 15,
+        "Configuracao": "LLaMA-3_E5-Large_300_60_OFF_OFF_OFF",
+        "Media": 8.63888888888889
+    },
+    {
+        "ID": 16,
+        "Configuracao": "LLaMA-3_E5-Large_300_60_ON_ON_ON",
+        "Media": 8.777777777777779
+    },
+    {
+        "ID": 17,
+        "Configuracao": "LLaMA-3_GTE-Large_200_0_OFF_OFF_OFF",
+        "Media": 8.36111111111111
+    },
+    {
+        "ID": 18,
+        "Configuracao": "LLaMA-3_GTE-Large_200_0_ON_ON_ON",
+        "Media": 7.944444444444445
+    },
+    {
+        "ID": 19,
+        "Configuracao": "LLaMA-3_GTE-Large_200_40_OFF_OFF_OFF",
+        "Media": 8.027777777777779
+    },
+    {
+        "ID": 20,
+        "Configuracao": "LLaMA-3_GTE-Large_200_40_ON_ON_ON",
+        "Media": 8.194444444444445
+    },
+    {
+        "ID": 21,
+        "Configuracao": "LLaMA-3_GTE-Large_400_0_OFF_OFF_OFF",
+        "Media": 8.055555555555555
+    },
+    {
+        "ID": 22,
+        "Configuracao": "LLaMA-3_GTE-Large_400_0_ON_ON_ON",
+        "Media": 8.694444444444445
+    },
+    {
+        "ID": 23,
+        "Configuracao": "LLaMA-3_GTE-Large_400_80_OFF_OFF_OFF",
+        "Media": 8.694444444444445
+    },
+    {
+        "ID": 24,
+        "Configuracao": "LLaMA-3_GTE-Large_400_80_ON_ON_ON",
+        "Media": 9.027777777777779
+    }
+]

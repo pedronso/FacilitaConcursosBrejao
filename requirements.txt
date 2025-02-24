@@ -16,3 +16,5 @@ ollama
 tiktoken
 rapidfuzz
 nltk
+matplotlib
+seaborn

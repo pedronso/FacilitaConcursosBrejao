@@ -347,15 +347,15 @@ def executar_pipeline_completa(filename=None):
     #print("🧠 Criando índices FAISS...")
     #criar_faiss_index()
 
-    print("\n🚀 Gerando respostas para todas as configurações...")
-    gerar_respostas()  # Chama diretamente a função de geração de respostas
+    #print("\n🚀 Gerando respostas para todas as configurações...")
+    #gerar_respostas()  # Chama diretamente a função de geração de respostas
 
     # Converter todos os JSONs para UTF-8 antes de processá-los
-    process_all_json_files()
+    #process_all_json_files()
     
-    print("\n📊 Avaliando as respostas geradas...")
-    verifier = ResultVerifier()
-    verifier.review_new_structure()  # Avalia respostas na nova estrutura
+    #print("\n📊 Avaliando as respostas geradas...")
+    #verifier = ResultVerifier()
+    #verifier.review_new_structure()  # Avalia respostas na nova estrutura
 
     #print("\n📊 Reavaliando as médias geradas...")
     #if filename:
