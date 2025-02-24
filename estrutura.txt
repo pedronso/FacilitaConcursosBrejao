@@ -5,10 +5,12 @@ C:.
 │   .gitignore
 │   app.py
 │   config.py
+│   convert_json_utf8.py
 │   estrutura.txt
 │   main.py
 │   README.md
 │   requirements.txt
+│   retry_failed_responses.py
 │   tempCodeRunnerFile.py
 │   tests_vars.py
 │   test_rizz_correction.py
@@ -19,8 +21,7 @@ C:.
 │       settings.json
 │       
 ├───data
-│   ├───embeddingCHUNK_OVERLAP_LABEL_NORMALIZATION_STOPWORDS
-│   ├───embeddings
+│   ├───embeddings_old
 │   │       faiss_index
 │   │       faiss_index_1
 │   │       
@@ -40,12 +41,250 @@ C:.
 │   │       trf.txt
 │   │       
 │   ├───processed
-│   │       editais_concursos.csv
-│   │       results_extraction_chunks.csv
-│   │       results_extraction_chunks_ib.csv
-│   │       results_extraction_chunks_test.csv
-│   │       results_extraction_chunks_updated.csv
-│   │       
+│   │   │   editais_concursos.csv
+│   │   │   results_extraction_chunks.csv
+│   │   │   results_extraction_chunks_ib.csv
+│   │   │   results_extraction_chunks_test.csv
+│   │   │   results_extraction_chunks_updated.csv
+│   │   │   
+│   │   ├───configs
+│   │   │   ├───DeepSeek_E5-Large_300_0_OFF_OFF_OFF
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   ├───DeepSeek_E5-Large_300_0_ON_ON_ON
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   ├───DeepSeek_E5-Large_300_60_OFF_OFF_OFF
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   ├───DeepSeek_E5-Large_300_60_ON_ON_ON
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   ├───DeepSeek_GTE-Large_200_0_OFF_OFF_OFF
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   ├───DeepSeek_GTE-Large_200_0_ON_ON_ON
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   ├───DeepSeek_GTE-Large_200_40_OFF_OFF_OFF
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   ├───DeepSeek_GTE-Large_200_40_ON_ON_ON
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   ├───DeepSeek_GTE-Large_400_0_OFF_OFF_OFF
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   ├───DeepSeek_GTE-Large_400_0_ON_ON_ON
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   ├───DeepSeek_GTE-Large_400_80_OFF_OFF_OFF
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   ├───DeepSeek_GTE-Large_400_80_ON_ON_ON
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   ├───LLaMA-3_E5-Large_300_0_OFF_OFF_OFF
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   ├───LLaMA-3_E5-Large_300_0_ON_ON_ON
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   ├───LLaMA-3_E5-Large_300_60_OFF_OFF_OFF
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   ├───LLaMA-3_E5-Large_300_60_ON_ON_ON
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   ├───LLaMA-3_GTE-Large_200_0_OFF_OFF_OFF
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   ├───LLaMA-3_GTE-Large_200_0_ON_ON_ON
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   ├───LLaMA-3_GTE-Large_200_40_OFF_OFF_OFF
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   ├───LLaMA-3_GTE-Large_200_40_ON_ON_ON
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   ├───LLaMA-3_GTE-Large_400_0_OFF_OFF_OFF
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   ├───LLaMA-3_GTE-Large_400_0_ON_ON_ON
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   ├───LLaMA-3_GTE-Large_400_80_OFF_OFF_OFF
+│   │   │   │       chunks.csv
+│   │   │   │       config.json
+│   │   │   │       faiss_index_COMPLETED
+│   │   │   │       metadata.json
+│   │   │   │       
+│   │   │   └───LLaMA-3_GTE-Large_400_80_ON_ON_ON
+│   │   │           chunks.csv
+│   │   │           config.json
+│   │   │           faiss_index_COMPLETED
+│   │   │           metadata.json
+│   │   │           
+│   │   ├───metricas
+│   │   │   │   DeepSeek_E5-Large_300_0_OFF_OFF_OFF_metricas.json
+│   │   │   │   DeepSeek_E5-Large_300_0_OFF_OFF_OFF_metricas_avaliado_com_llama3-8b.json
+│   │   │   │   DeepSeek_E5-Large_300_0_ON_ON_ON_metricas.json
+│   │   │   │   
+│   │   │   └───modelos_usados
+│   │   ├───modelos_usados
+│   │   │       DeepSeek_E5-Large_300_0_OFF_OFF_OFF_modelos_usados.json
+│   │   │       DeepSeek_E5-Large_300_0_ON_ON_ON_modelos_usados.json
+│   │   │       DeepSeek_E5-Large_300_60_OFF_OFF_OFF_modelos_usados.json
+│   │   │       DeepSeek_E5-Large_300_60_ON_ON_ON_modelos_usados.json
+│   │   │       DeepSeek_GTE-Large_200_0_OFF_OFF_OFF_modelos_usados.json
+│   │   │       DeepSeek_GTE-Large_200_0_ON_ON_ON_modelos_usados.json
+│   │   │       DeepSeek_GTE-Large_200_40_OFF_OFF_OFF_modelos_usados.json
+│   │   │       DeepSeek_GTE-Large_200_40_ON_ON_ON_modelos_usados.json
+│   │   │       DeepSeek_GTE-Large_400_0_OFF_OFF_OFF_modelos_usados.json
+│   │   │       DeepSeek_GTE-Large_400_0_ON_ON_ON_modelos_usados.json
+│   │   │       DeepSeek_GTE-Large_400_80_OFF_OFF_OFF_modelos_usados.json
+│   │   │       DeepSeek_GTE-Large_400_80_ON_ON_ON_modelos_usados.json
+│   │   │       LLaMA-3_E5-Large_300_0_OFF_OFF_OFF_modelos_usados.json
+│   │   │       
+│   │   ├───RASC
+│   │   │   │   DeepSeek_GTE-Large_400_80_OFF_OFF_OFF_time_results.json
+│   │   │   │   LLaMA-3-8b-8192_E5-Large_300_0_OFF_OFF_OFF_respostas.json
+│   │   │   │   LLaMA-3-8b-8192_E5-Large_300_0_OFF_OFF_OFF_time_results.json
+│   │   │   │   
+│   │   │   ├───metricas_2
+│   │   │   │       DeepSeek_E5-Large_300_0_OFF_OFF_OFF_metricas.json
+│   │   │   │       
+│   │   │   ├───rascunho
+│   │   │   │       DeepSeek_GTE-Large_200_40_ON_ON_ON_respostas.json
+│   │   │   │       
+│   │   │   ├───respostas_2
+│   │   │   │       DeepSeek_E5-Large_300_0_OFF_OFF_OFF_respostas.json
+│   │   │   │       DeepSeek_E5-Large_300_0_ON_ON_ON_respostas.json
+│   │   │   │       DeepSeek_E5-Large_300_60_OFF_OFF_OFF_respostas.json
+│   │   │   │       DeepSeek_E5-Large_300_60_ON_ON_ON_respostas.json
+│   │   │   │       DeepSeek_GTE-Large_200_0_OFF_OFF_OFF_respostas.json
+│   │   │   │       DeepSeek_GTE-Large_200_0_ON_ON_ON_respostas.json
+│   │   │   │       DeepSeek_GTE-Large_200_40_OFF_OFF_OFF_respostas.json
+│   │   │   │       
+│   │   │   └───respostas_utf8_2
+│   │   │           DeepSeek_E5-Large_300_0_OFF_OFF_OFF_respostas.json
+│   │   │           DeepSeek_E5-Large_300_0_ON_ON_ON_respostas.json
+│   │   │           DeepSeek_E5-Large_300_60_OFF_OFF_OFF_respostas.json
+│   │   │           DeepSeek_E5-Large_300_60_ON_ON_ON_respostas.json
+│   │   │           DeepSeek_GTE-Large_200_0_OFF_OFF_OFF_respostas.json
+│   │   │           DeepSeek_GTE-Large_200_0_ON_ON_ON_respostas.json
+│   │   │           DeepSeek_GTE-Large_200_40_OFF_OFF_OFF_respostas.json
+│   │   │           DeepSeek_GTE-Large_200_40_ON_ON_ON_respostas.json
+│   │   │           
+│   │   ├───respostas
+│   │   │       DeepSeek_E5-Large_300_0_OFF_OFF_OFF_respostas.json
+│   │   │       DeepSeek_E5-Large_300_0_ON_ON_ON_respostas.json
+│   │   │       DeepSeek_E5-Large_300_60_OFF_OFF_OFF_respostas.json
+│   │   │       DeepSeek_E5-Large_300_60_ON_ON_ON_respostas.json
+│   │   │       DeepSeek_GTE-Large_200_0_OFF_OFF_OFF_respostas.json
+│   │   │       DeepSeek_GTE-Large_200_0_ON_ON_ON_respostas.json
+│   │   │       DeepSeek_GTE-Large_200_40_OFF_OFF_OFF_respostas.json
+│   │   │       DeepSeek_GTE-Large_200_40_ON_ON_ON_respostas.json
+│   │   │       DeepSeek_GTE-Large_400_0_OFF_OFF_OFF_respostas.json
+│   │   │       DeepSeek_GTE-Large_400_0_ON_ON_ON_respostas.json
+│   │   │       DeepSeek_GTE-Large_400_80_OFF_OFF_OFF_respostas.json
+│   │   │       DeepSeek_GTE-Large_400_80_ON_ON_ON_respostas.json
+│   │   │       
+│   │   ├───respostas_utf8
+│   │   │       DeepSeek_E5-Large_300_0_OFF_OFF_OFF_respostas.json
+│   │   │       DeepSeek_E5-Large_300_0_ON_ON_ON_respostas.json
+│   │   │       DeepSeek_E5-Large_300_60_OFF_OFF_OFF_respostas.json
+│   │   │       DeepSeek_E5-Large_300_60_ON_ON_ON_respostas.json
+│   │   │       DeepSeek_GTE-Large_200_0_OFF_OFF_OFF_respostas.json
+│   │   │       DeepSeek_GTE-Large_200_0_ON_ON_ON_respostas.json
+│   │   │       DeepSeek_GTE-Large_200_40_OFF_OFF_OFF_respostas.json
+│   │   │       DeepSeek_GTE-Large_200_40_ON_ON_ON_respostas.json
+│   │   │       DeepSeek_GTE-Large_400_0_OFF_OFF_OFF_respostas.json
+│   │   │       DeepSeek_GTE-Large_400_0_ON_ON_ON_respostas.json
+│   │   │       DeepSeek_GTE-Large_400_80_OFF_OFF_OFF_respostas.json
+│   │   │       DeepSeek_GTE-Large_400_80_ON_ON_ON_respostas.json
+│   │   │       
+│   │   └───time_results
+│   │           DeepSeek_E5-Large_300_0_OFF_OFF_OFF_time_results.json
+│   │           DeepSeek_E5-Large_300_0_ON_ON_ON_time_results.json
+│   │           DeepSeek_E5-Large_300_60_OFF_OFF_OFF_time_results.json
+│   │           DeepSeek_E5-Large_300_60_ON_ON_ON_time_results.json
+│   │           DeepSeek_GTE-Large_200_0_OFF_OFF_OFF_time_results.json
+│   │           DeepSeek_GTE-Large_200_0_ON_ON_ON_time_results.json
+│   │           DeepSeek_GTE-Large_200_40_OFF_OFF_OFF_time_results.json
+│   │           DeepSeek_GTE-Large_200_40_ON_ON_ON_time_results.json
+│   │           DeepSeek_GTE-Large_400_0_OFF_OFF_OFF_time_results.json
+│   │           DeepSeek_GTE-Large_400_0_ON_ON_ON_time_results.json
+│   │           DeepSeek_GTE-Large_400_80_OFF_OFF_OFF_time_results.json
+│   │           DeepSeek_GTE-Large_400_80_ON_ON_ON_time_results.json
+│   │           
 │   ├───raw
 │   │       edital_completo_1668522.pdf
 │   │       edital_de_abertura_1666599.pdf
@@ -93,17 +332,30 @@ C:.
 │   │   embeddings_experiment.py
 │   │   llm_experiment.py
 │   │   results_saver.py
+│   │   results_saver2.py
 │   │   result_verifier.py
+│   │   result_verifier2.py
 │   │   
 │   └───__pycache__
 │           results_saver.cpython-310.pyc
 │           result_verifier.cpython-310.pyc
 │           
 ├───generate
-│       generate_chunks.py
-│       generate_faiss.py
-│       generate_folders.py
-│       
+│   │   generate_chunks.py
+│   │   generate_faiss.py
+│   │   generate_folders.py
+│   │   generate_metadata.py
+│   │   generate_responses.py
+│   │   verify_embedding_models.py
+│   │   
+│   └───__pycache__
+│           generate_chunks.cpython-310.pyc
+│           generate_faiss.cpython-310.pyc
+│           generate_folders.cpython-310.pyc
+│           generate_metadata.cpython-310.pyc
+│           generate_responses.cpython-310.pyc
+│           verify_embedding_models.cpython-310.pyc
+│           
 ├───models
 │   │   embeddings_model.py
 │   │   llm_model.py
@@ -117,6 +369,7 @@ C:.
 ├───pipelines
 │   │   extractor.py
 │   │   rag.py
+│   │   rag2.py
 │   │   scraper.py
 │   │   tempCodeRunnerFile.py
 │   │   __init__.py

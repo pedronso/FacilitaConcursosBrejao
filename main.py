@@ -355,7 +355,7 @@ def executar_pipeline_completa(filename=None):
     
     #print("\n📊 Avaliando as respostas geradas...")
     verifier = ResultVerifier()
-    #verifier.review_new_structure()  # Avalia respostas na nova estrutura
+    verifier.review_new_structure()  # Avalia respostas na nova estrutura
 
     #print("\n📊 Reavaliando as médias geradas...")
     #if filename:

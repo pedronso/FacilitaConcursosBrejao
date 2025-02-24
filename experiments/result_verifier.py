@@ -23,7 +23,7 @@ class ResultVerifier:
     def save_model_info(self, filename, model_name):
         """Salva o modelo utilizado para avaliação das métricas."""
         model_filepath = os.path.join(MODELS_USED_DIR, filename.replace("_metricas.json", "_modelo_usado.json"))
-        model_data = {"modelo_usado": model_name}
+        model_data = {"modelo_usado para avaliar as questões": model_name}
         self.save_json(model_data, model_filepath)
         print(f"📁 Modelo usado salvo em: {model_filepath}")
 
@@ -49,7 +49,7 @@ class ResultVerifier:
                 total_avaliacoes = 0
                 avaliacoes = {}
 
-                model_used = self.llm_reviewer.current_model  # Obtém o modelo atual usado
+                model_used = self.llm_reviewer.current_model  
 
                 for pergunta, resposta in respostas.items():
                     print(f"🔍 Avaliando resposta: {pergunta}")

@@ -10,7 +10,7 @@ load_dotenv()
 # Mapeamento de modelos com base no nome da pasta de configuração.
 CONFIG_MODEL_MAP = {
     "DeepSeek": "deepseek-r1-distill-llama-70b",
-    "LLaMA": "llama3-8b-8192", #"llama3-70b-8192",
+    "LLaMA": "llama3-70b-8192", #"llama3-70b-8192", #llama3-8b-8192
     "Mixtral": "mixtral-8x7b-32768",
 }
 
