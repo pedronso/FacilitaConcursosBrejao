@@ -194,10 +194,72 @@ C:.
 │   │   │           
 │   │   ├───metricas
 │   │   │   │   DeepSeek_E5-Large_300_0_OFF_OFF_OFF_metricas.json
-│   │   │   │   DeepSeek_E5-Large_300_0_OFF_OFF_OFF_metricas_avaliado_com_llama3-8b.json
 │   │   │   │   DeepSeek_E5-Large_300_0_ON_ON_ON_metricas.json
+│   │   │   │   DeepSeek_E5-Large_300_60_OFF_OFF_OFF_metricas.json
+│   │   │   │   DeepSeek_E5-Large_300_60_ON_ON_ON_metricas.json
+│   │   │   │   DeepSeek_GTE-Large_200_0_OFF_OFF_OFF_metricas.json
+│   │   │   │   DeepSeek_GTE-Large_200_0_ON_ON_ON_metricas.json
+│   │   │   │   DeepSeek_GTE-Large_200_40_OFF_OFF_OFF_metricas.json
+│   │   │   │   DeepSeek_GTE-Large_200_40_ON_ON_ON_metricas.json
+│   │   │   │   DeepSeek_GTE-Large_400_0_OFF_OFF_OFF_metricas.json
+│   │   │   │   DeepSeek_GTE-Large_400_0_ON_ON_ON_metricas.json
+│   │   │   │   DeepSeek_GTE-Large_400_80_OFF_OFF_OFF_metricas.json
+│   │   │   │   DeepSeek_GTE-Large_400_80_ON_ON_ON_metricas.json
+│   │   │   │   LLaMA-3_E5-Large_300_0_OFF_OFF_OFF_metricas.json
+│   │   │   │   LLaMA-3_E5-Large_300_0_ON_ON_ON_metricas.json
+│   │   │   │   LLaMA-3_E5-Large_300_60_OFF_OFF_OFF_metricas.json
+│   │   │   │   LLaMA-3_E5-Large_300_60_ON_ON_ON_metricas.json
+│   │   │   │   LLaMA-3_GTE-Large_200_0_OFF_OFF_OFF_metricas.json
+│   │   │   │   LLaMA-3_GTE-Large_200_0_ON_ON_ON_metricas.json
+│   │   │   │   LLaMA-3_GTE-Large_200_40_OFF_OFF_OFF_metricas.json
+│   │   │   │   LLaMA-3_GTE-Large_200_40_ON_ON_ON_metricas.json
+│   │   │   │   LLaMA-3_GTE-Large_400_0_OFF_OFF_OFF_metricas.json
+│   │   │   │   LLaMA-3_GTE-Large_400_0_ON_ON_ON_metricas.json
+│   │   │   │   LLaMA-3_GTE-Large_400_80_OFF_OFF_OFF_metricas.json
+│   │   │   │   LLaMA-3_GTE-Large_400_80_ON_ON_ON_metricas.json
 │   │   │   │   
 │   │   │   └───modelos_usados
+│   │   │           DeepSeek_E5-Large_300_0_OFF_OFF_OFF_modelo_usado.json
+│   │   │           DeepSeek_E5-Large_300_0_ON_ON_ON_modelo_usado.json
+│   │   │           DeepSeek_E5-Large_300_60_OFF_OFF_OFF_modelo_usado.json
+│   │   │           DeepSeek_E5-Large_300_60_ON_ON_ON_modelo_usado.json
+│   │   │           DeepSeek_GTE-Large_200_0_OFF_OFF_OFF_modelo_usado.json
+│   │   │           DeepSeek_GTE-Large_200_0_ON_ON_ON_modelo_usado.json
+│   │   │           DeepSeek_GTE-Large_200_40_OFF_OFF_OFF_modelo_usado.json
+│   │   │           DeepSeek_GTE-Large_200_40_ON_ON_ON_modelo_usado.json
+│   │   │           DeepSeek_GTE-Large_400_0_OFF_OFF_OFF_modelo_usado.json
+│   │   │           DeepSeek_GTE-Large_400_0_ON_ON_ON_modelo_usado.json
+│   │   │           DeepSeek_GTE-Large_400_80_OFF_OFF_OFF_modelo_usado.json
+│   │   │           DeepSeek_GTE-Large_400_80_ON_ON_ON_modelo_usado.json
+│   │   │           LLaMA-3_E5-Large_300_0_OFF_OFF_OFF_modelo_usado.json
+│   │   │           LLaMA-3_E5-Large_300_0_ON_ON_ON_modelo_usado.json
+│   │   │           LLaMA-3_E5-Large_300_60_OFF_OFF_OFF_modelo_usado.json
+│   │   │           LLaMA-3_E5-Large_300_60_ON_ON_ON_modelo_usado.json
+│   │   │           LLaMA-3_GTE-Large_200_0_OFF_OFF_OFF_modelo_usado.json
+│   │   │           LLaMA-3_GTE-Large_200_0_ON_ON_ON_modelo_usado.json
+│   │   │           LLaMA-3_GTE-Large_200_40_OFF_OFF_OFF_modelo_usado.json
+│   │   │           LLaMA-3_GTE-Large_200_40_ON_ON_ON_modelo_usado.json
+│   │   │           LLaMA-3_GTE-Large_400_0_OFF_OFF_OFF_modelo_usado.json
+│   │   │           LLaMA-3_GTE-Large_400_0_ON_ON_ON_modelo_usado.json
+│   │   │           LLaMA-3_GTE-Large_400_80_OFF_OFF_OFF_modelo_usado.json
+│   │   │           LLaMA-3_GTE-Large_400_80_ON_ON_ON_modelo_usado.json
+│   │   │           
+│   │   ├───metricas_llama3-8b-8192
+│   │   │   │   DeepSeek_E5-Large_300_0_OFF_OFF_OFF_metricas.json
+│   │   │   │   DeepSeek_E5-Large_300_0_OFF_OFF_OFF_metricas_avaliado_com_llama3-8b.json
+│   │   │   │   DeepSeek_E5-Large_300_0_ON_ON_ON_metricas.json
+│   │   │   │   DeepSeek_E5-Large_300_60_OFF_OFF_OFF_metricas.json
+│   │   │   │   DeepSeek_E5-Large_300_60_ON_ON_ON_metricas.json
+│   │   │   │   DeepSeek_GTE-Large_200_0_OFF_OFF_OFF_metricas.json
+│   │   │   │   
+│   │   │   └───modelos_usados
+│   │   │           DeepSeek_E5-Large_300_0_OFF_OFF_OFF_modelo_usado.json
+│   │   │           DeepSeek_E5-Large_300_0_ON_ON_ON_modelo_usado.json
+│   │   │           DeepSeek_E5-Large_300_60_OFF_OFF_OFF_modelo_usado copy.json
+│   │   │           DeepSeek_E5-Large_300_60_OFF_OFF_OFF_modelo_usado.json
+│   │   │           DeepSeek_E5-Large_300_60_ON_ON_ON_modelo_usado.json
+│   │   │           DeepSeek_GTE-Large_200_0_OFF_OFF_OFF_modelo_usado.json
+│   │   │           
 │   │   ├───modelos_usados
 │   │   │       DeepSeek_E5-Large_300_0_OFF_OFF_OFF_modelos_usados.json
 │   │   │       DeepSeek_E5-Large_300_0_ON_ON_ON_modelos_usados.json
@@ -212,6 +274,7 @@ C:.
 │   │   │       DeepSeek_GTE-Large_400_80_OFF_OFF_OFF_modelos_usados.json
 │   │   │       DeepSeek_GTE-Large_400_80_ON_ON_ON_modelos_usados.json
 │   │   │       LLaMA-3_E5-Large_300_0_OFF_OFF_OFF_modelos_usados.json
+│   │   │       LLaMA-3_E5-Large_300_0_ON_ON_ON_modelos_usados.json
 │   │   │       
 │   │   ├───RASC
 │   │   │   │   DeepSeek_GTE-Large_400_80_OFF_OFF_OFF_time_results.json
@@ -256,6 +319,18 @@ C:.
 │   │   │       DeepSeek_GTE-Large_400_0_ON_ON_ON_respostas.json
 │   │   │       DeepSeek_GTE-Large_400_80_OFF_OFF_OFF_respostas.json
 │   │   │       DeepSeek_GTE-Large_400_80_ON_ON_ON_respostas.json
+│   │   │       LLaMA-3_E5-Large_300_0_OFF_OFF_OFF_respostas.json
+│   │   │       LLaMA-3_E5-Large_300_0_ON_ON_ON_respostas.json
+│   │   │       LLaMA-3_E5-Large_300_60_OFF_OFF_OFF_respostas.json
+│   │   │       LLaMA-3_E5-Large_300_60_ON_ON_ON_respostas.json
+│   │   │       LLaMA-3_GTE-Large_200_0_OFF_OFF_OFF_respostas.json
+│   │   │       LLaMA-3_GTE-Large_200_0_ON_ON_ON_respostas.json
+│   │   │       LLaMA-3_GTE-Large_200_40_OFF_OFF_OFF_respostas.json
+│   │   │       LLaMA-3_GTE-Large_200_40_ON_ON_ON_respostas.json
+│   │   │       LLaMA-3_GTE-Large_400_0_OFF_OFF_OFF_respostas.json
+│   │   │       LLaMA-3_GTE-Large_400_0_ON_ON_ON_respostas.json
+│   │   │       LLaMA-3_GTE-Large_400_80_OFF_OFF_OFF_respostas.json
+│   │   │       LLaMA-3_GTE-Large_400_80_ON_ON_ON_respostas.json
 │   │   │       
 │   │   ├───respostas_utf8
 │   │   │       DeepSeek_E5-Large_300_0_OFF_OFF_OFF_respostas.json
@@ -270,6 +345,18 @@ C:.
 │   │   │       DeepSeek_GTE-Large_400_0_ON_ON_ON_respostas.json
 │   │   │       DeepSeek_GTE-Large_400_80_OFF_OFF_OFF_respostas.json
 │   │   │       DeepSeek_GTE-Large_400_80_ON_ON_ON_respostas.json
+│   │   │       LLaMA-3_E5-Large_300_0_OFF_OFF_OFF_respostas.json
+│   │   │       LLaMA-3_E5-Large_300_0_ON_ON_ON_respostas.json
+│   │   │       LLaMA-3_E5-Large_300_60_OFF_OFF_OFF_respostas.json
+│   │   │       LLaMA-3_E5-Large_300_60_ON_ON_ON_respostas.json
+│   │   │       LLaMA-3_GTE-Large_200_0_OFF_OFF_OFF_respostas.json
+│   │   │       LLaMA-3_GTE-Large_200_0_ON_ON_ON_respostas.json
+│   │   │       LLaMA-3_GTE-Large_200_40_OFF_OFF_OFF_respostas.json
+│   │   │       LLaMA-3_GTE-Large_200_40_ON_ON_ON_respostas.json
+│   │   │       LLaMA-3_GTE-Large_400_0_OFF_OFF_OFF_respostas.json
+│   │   │       LLaMA-3_GTE-Large_400_0_ON_ON_ON_respostas.json
+│   │   │       LLaMA-3_GTE-Large_400_80_OFF_OFF_OFF_respostas.json
+│   │   │       LLaMA-3_GTE-Large_400_80_ON_ON_ON_respostas.json
 │   │   │       
 │   │   └───time_results
 │   │           DeepSeek_E5-Large_300_0_OFF_OFF_OFF_time_results.json
@@ -284,6 +371,8 @@ C:.
 │   │           DeepSeek_GTE-Large_400_0_ON_ON_ON_time_results.json
 │   │           DeepSeek_GTE-Large_400_80_OFF_OFF_OFF_time_results.json
 │   │           DeepSeek_GTE-Large_400_80_ON_ON_ON_time_results.json
+│   │           LLaMA-3_E5-Large_300_0_OFF_OFF_OFF_time_results.json
+│   │           LLaMA-3_E5-Large_300_0_ON_ON_ON_time_results.json
 │   │           
 │   ├───raw
 │   │       edital_completo_1668522.pdf
