@@ -208,7 +208,7 @@ class LLMReviewerModel(LLMModel):
 4. **Clareza**: A resposta é clara e bem estruturada?
 
 ### **Instruções**
-- Atribua uma nota de **0 a 10** para a resposta.
+- Atribua uma nota de **0 a 10** para a resposta, exclusivamente.
 - Responda **APENAS COM O NÚMERO DA NOTA**, sem justificativas, explicações ou texto adicional.
 - Penalize respostas vagas, evasivas ou que indicam falta de informação:
   - Se a resposta disser "Não sei" ou não fornecer qualquer dado útil, a nota deve ser **0**.

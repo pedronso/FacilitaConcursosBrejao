@@ -44,7 +44,7 @@ class ResultVerifier:
                 for pergunta, resposta in respostas.items():
                     print(f"🔍 Avaliando resposta: {pergunta}")
 
-                    prompt = f"Avalie a seguinte pergunta e resposta:\n\n**Pergunta:** {pergunta}\n**Resposta:** {resposta}"
+                    prompt = f"Avalie a seguinte resposta:\n\n**Pergunta:** {pergunta}\n**Resposta:** {resposta}"
                     avaliacao = self.llm_reviewer.generate_response(prompt)
 
                     # Extrai apenas o número da nota
